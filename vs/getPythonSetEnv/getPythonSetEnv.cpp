@@ -46,6 +46,14 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
 #include <atlstr.h>
 
 
+CString GetStartPath()
+{
+	TCHAR szTemp[MAX_PATH];
+	GetModuleFileName(NULL, szTemp, sizeof(szTemp) / sizeof(TCHAR));
+	_tcsrchr(szTemp, '\\')[1] = 0;
+	return szTemp;
+}
+
 
 CString GetRegKeyStr(HKEY key, LPCTSTR subkey)
 {
@@ -98,7 +106,7 @@ bool SetPathEnvironment(const CString&strEnv)
 	}else{
 		//
 	}
-	
+
 	return bSuccess;
 }
 
@@ -113,7 +121,7 @@ void SetPythonToEnv(const CString&strPythonPath)
 	if ( strEnv.Find(strScriptsPath)==-1 ) {
 		strEnv = strScriptsPath + ";" + strEnv;
 	}
-	
+
 	_tprintf(_T("%s\n\n"), strEnv);
 	SetPathEnvironment(strEnv);
 
@@ -124,14 +132,25 @@ void SetPythonToEnv(const CString&strPythonPath)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CString strPath;
-
-	strPath = GetRegKeyStr(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe"));
+	CString strPath = GetRegKeyStr(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe"));
+	CString strPyInstallPath;
 	if ( GetFileAttributes(strPath)!=-1 ) {
-		strPath = GetParentPath(strPath);
+		strPyInstallPath = GetParentPath(strPath);
 	}
-	SetPythonToEnv(strPath);
-	system("pause");
+
+	if ( argc >= 2 ) {
+		CString strParams;
+		strParams += CString(argv[1]) + _T(" ");				//py脚本文件
+		strParams += strPyInstallPath + _T(" ");	//py安装路径，末尾带斜杠
+		for ( int i = 2; i < argc; ++i ) {
+			strParams += CString(argv[i])  + _T(" ");
+		}
+		ShellExecute(NULL, _T("open"), strPath, strParams, NULL, SW_SHOWNORMAL);
+	}else{
+		SetPythonToEnv(strPath);
+		system("pause");
+	}
+
 	return 0;
 }
 
