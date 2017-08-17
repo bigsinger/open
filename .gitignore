@@ -3,3 +3,4 @@
 /src/HerbGather/*.suo
 /src/HerbGather/*.ncb
 *.user
+*.obj

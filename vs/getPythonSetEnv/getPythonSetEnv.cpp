@@ -132,22 +132,27 @@ void SetPythonToEnv(const CString&strPythonPath)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CString strPath = GetRegKeyStr(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe"));
 	CString strPyInstallPath;
+	CString strPath = GetRegKeyStr(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe"));
+	if ( strPath.IsEmpty() == TRUE || GetFileAttributes(strPath) == -1 ) {
+		strPath = GetRegKeyStr(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe"));
+	}
+
 	if ( GetFileAttributes(strPath)!=-1 ) {
 		strPyInstallPath = GetParentPath(strPath);
 	}
 
 	if ( argc >= 2 ) {
 		CString strParams;
-		strParams += CString(argv[1]) + _T(" ");				//py脚本文件
+		strParams += _T("\"") + CString(argv[1]) + _T("\" ");				//py脚本文件
 		strParams += strPyInstallPath + _T(" ");	//py安装路径，末尾带斜杠
 		for ( int i = 2; i < argc; ++i ) {
-			strParams += CString(argv[i])  + _T(" ");
+			strParams += _T("\"") + CString(argv[i])  + _T("\" ");
 		}
+		_tprintf(_T("%s\n\n"), strParams);
 		ShellExecute(NULL, _T("open"), strPath, strParams, NULL, SW_SHOWNORMAL);
 	}else{
-		SetPythonToEnv(strPath);
+		SetPythonToEnv(strPyInstallPath);
 		system("pause");
 	}
 
