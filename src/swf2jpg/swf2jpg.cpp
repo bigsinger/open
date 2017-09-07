@@ -6,7 +6,7 @@
 #include <Shlwapi.h>
 #include <zlib/zlib.h>
 #include "PDFLib/pdflib.h"
-#include "../swfrip/swf.h"
+#include <swfrip/swf.h>
 #import "SWFToImage.dll" 
 using namespace SWFToImage;
 
@@ -18,11 +18,11 @@ using namespace SWFToImage;
 
 #ifdef _DEBUG
 #pragma comment(lib,"zlibd.lib")
-#pragma comment(lib,"../bin/swfripD.lib")
+#pragma comment(lib,"swfripD.lib")
 #pragma comment(lib,"libpngd.lib")
 #else
 #pragma comment(lib,"zlib.lib")
-#pragma comment(lib,"../bin/swfrip.lib")
+#pragma comment(lib,"swfrip.lib")
 #pragma comment(lib,"libpng.lib")
 #endif
 
@@ -102,8 +102,13 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	CString strAppPath = GetStartPath();
 
+	CString strCompressedSwf = strAppPath + "0.swf";
+	CString strUnCompressedSwf = strAppPath + "1.swf";
+	CString strImageFilePath = strAppPath + "1.jpg";
+	CString strPdfFilePath = strAppPath + "1.pdf";
+
 	//////////////////////////////////////////////////////////////////////////
-	//UnCompress("0.swf","1.swf");
+	UnCompress(strCompressedSwf, strUnCompressedSwf);
 	//////////////////////////////////////////////////////////////////////////
 
 	CoInitialize(NULL);
@@ -115,20 +120,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	hr=CoCreateInstance(clsid,NULL,CLSCTX_INPROC_SERVER,__uuidof(ISWFToImageObject),(LPVOID*)&obj);
 
 	obj->InitLibrary("demo", "demo");
-	obj->InputSWFFileName = "1.swf";
+	obj->InputSWFFileName = (_bstr_t)strUnCompressedSwf;
 	obj->ImageOutputType = SWFToImage::TImageOutputType::iotJPG; // ' set output image type to Jpeg (0 = BMP, 1 = JPG, 2 = GIF)
 	obj->ImageWidth = 1222;
 	obj->ImageHeight = 1680;
 	obj->Execute();
-	obj->SaveToFile("1.jpg");
+	obj->SaveToFile((_bstr_t)strImageFilePath);
 
 
 #if 1
 	PDF *pdf = PDF_new();
 	if ( pdf ){
-		PDF_open_file(pdf,"1.pdf");
+		PDF_open_file(pdf, strPdfFilePath);
 		for ( int i=0; i<3; ++i ){
-			int nImage = PDF_open_image_file(pdf,"jpeg",strAppPath+"1.jpg","",0);
+			int nImage = PDF_open_image_file(pdf, "jpeg", strImageFilePath, "", 0);
 			PDF_begin_page(pdf,1222,1680);
 			PDF_place_image(pdf, nImage, 0, 0, 1); 
 			PDF_close_image(pdf, nImage);
@@ -141,16 +146,17 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
 
 
-#if 0
+#if 1
 
 	cswfLoaded.SetDeleteTags(true);
-	if( !cswfLoaded.Load(strAppPath+"0.swf") ){
+	if( !cswfLoaded.Load(strCompressedSwf) ){
 		printf("not a valid Macromedia Flash file.");
 	}else{
 	}
 
 	if( cswfLoaded.Loaded() ){
-		cswfLoaded.SaveText((char *)(LPCTSTR)(strAppPath+"0.txt"));
+		//cswfLoaded.SaveText();
+		cswfLoaded.SaveText((char *)(LPCTSTR)(strAppPath + "0.txt"));
 	}
 
 	cswfLoaded.Clear();
