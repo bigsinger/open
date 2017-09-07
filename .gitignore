@@ -7,3 +7,4 @@
 *.ncb
 /src/swf2jpg/Debug
 *.suo
+src/swf2jpg/bin/swf2jpg.exe
