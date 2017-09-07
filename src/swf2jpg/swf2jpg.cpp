@@ -1,5 +1,5 @@
 // swt2jpg.cpp : 定义控制台应用程序的入口点。
-//
+//2017年9月7日验证百度的可能flash文件可能有改版（baidu2.swf），导致swfrip库不能正常使用了。早期的flash文件可解析（0.swf）
 
 #include "stdafx.h"
 #include <afx.h>
@@ -128,7 +128,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	obj->SaveToFile((_bstr_t)strImageFilePath);
 
 
-#if 1
+#if 0
 	PDF *pdf = PDF_new();
 	if ( pdf ){
 		PDF_open_file(pdf, strPdfFilePath);
@@ -148,8 +148,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 #if 1
 
-	cswfLoaded.SetDeleteTags(true);
-	if( !cswfLoaded.Load(strCompressedSwf) ){
+	//cswfLoaded.SetDeleteTags(true);
+	if( !cswfLoaded.Load(strUnCompressedSwf) ){	//or strCompressedSwf
 		printf("not a valid Macromedia Flash file.");
 	}else{
 	}

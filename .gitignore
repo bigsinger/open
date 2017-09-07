@@ -5,3 +5,5 @@
 *.user
 *.obj
 *.ncb
+/src/swf2jpg/Debug
+*.suo
