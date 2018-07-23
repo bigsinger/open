@@ -14,10 +14,10 @@
 // 有关此类的实现，请参阅 strtest.cpp
 //
 
-class CstrtestApp : public CWinApp
+class CMainApp : public CWinApp
 {
 public:
-	CstrtestApp();
+	CMainApp();
 
 // 重写
 	public:
@@ -28,4 +28,4 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CstrtestApp theApp;
+extern CMainApp theApp;

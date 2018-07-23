@@ -5,11 +5,11 @@
 
 
 // CstrtestDlg 对话框
-class CstrtestDlg : public CDialog
+class CMainDlg : public CDialog
 {
 // 构造
 public:
-	CstrtestDlg(CWnd* pParent = NULL);	// 标准构造函数
+	CMainDlg(CWnd* pParent = NULL);	// 标准构造函数
 
 // 对话框数据
 	enum { IDD = IDD_STRTEST_DIALOG };
@@ -29,4 +29,5 @@ public:
 	CString m_strIN;
 	CString m_strOut;
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnEnChangeEdit1();
 };

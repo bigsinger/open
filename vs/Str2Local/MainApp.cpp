@@ -2,8 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "strtest.h"
-#include "strtestDlg.h"
+#include "MainApp.h"
+#include "MainDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -12,14 +12,14 @@
 
 // CstrtestApp
 
-BEGIN_MESSAGE_MAP(CstrtestApp, CWinApp)
+BEGIN_MESSAGE_MAP(CMainApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 
 // CstrtestApp 构造
 
-CstrtestApp::CstrtestApp()
+CMainApp::CMainApp()
 {
 	// TODO: 在此处添加构造代码，
 	// 将所有重要的初始化放置在 InitInstance 中
@@ -28,12 +28,12 @@ CstrtestApp::CstrtestApp()
 
 // 唯一的一个 CstrtestApp 对象
 
-CstrtestApp theApp;
+CMainApp theApp;
 
 
 // CstrtestApp 初始化
 
-BOOL CstrtestApp::InitInstance()
+BOOL CMainApp::InitInstance()
 {
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
@@ -58,7 +58,7 @@ BOOL CstrtestApp::InitInstance()
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
-	CstrtestDlg dlg;
+	CMainDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)

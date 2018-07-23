@@ -2,8 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "strtest.h"
-#include "strtestDlg.h"
+#include "MainApp.h"
+#include "MainDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,30 +13,31 @@
 // CstrtestDlg 对话框
 
 
-CstrtestDlg::CstrtestDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CstrtestDlg::IDD, pParent)
+CMainDlg::CMainDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(CMainDlg::IDD, pParent)
 	, m_strIN(_T(""))
 	, m_strOut(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CstrtestDlg::DoDataExchange(CDataExchange* pDX)
+void CMainDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_strIN);
 	DDX_Text(pDX, IDC_EDIT2, m_strOut);
 }
 
-BEGIN_MESSAGE_MAP(CstrtestDlg, CDialog)
+BEGIN_MESSAGE_MAP(CMainDlg, CDialog)
 	//}}AFX_MSG_MAP
-	ON_BN_CLICKED(IDOK, &CstrtestDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDOK, &CMainDlg::OnBnClickedOk)
+	ON_EN_CHANGE(IDC_EDIT1, &CMainDlg::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 
 // CstrtestDlg 消息处理程序
 
-BOOL CstrtestDlg::OnInitDialog()
+BOOL CMainDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
@@ -89,7 +90,7 @@ void CopyToClipboard(const CString&strText)
 }
 
 
-void CstrtestDlg::OnBnClickedOk()
+void CMainDlg::OnBnClickedOk()
 {
 	UpdateData();
 	CString strHeader = _T("CHAR sz") + m_strIN + _T("[] = { ");
@@ -165,4 +166,15 @@ void CstrtestDlg::OnBnClickedOk()
 
 	CopyToClipboard(m_strOut);
 	UpdateData(FALSE);
+}
+
+void CMainDlg::OnEnChangeEdit1()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，则它将不会
+	// 发送该通知，除非重写 CDialog::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	OnBnClickedOk();
 }
