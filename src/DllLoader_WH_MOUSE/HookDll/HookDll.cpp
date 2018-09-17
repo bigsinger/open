@@ -5,6 +5,7 @@
 #include "HookDll.h"
 #include <Shlwapi.h>
 #include <Winsock2.h>
+#include "Constant.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -60,7 +61,6 @@ LRESULT MouseProc(int nCode,WPARAM wParam,LPARAM lParam)
 
 __declspec(dllexport) void __stdcall StartHook(HANDLE hMainWnd,DWORD dwThreadId)
 {
-	pShareMem->hMainWnd=hMainWnd;
 	hhk=SetWindowsHookEx(WH_MOUSE,(HOOKPROC)MouseProc,AfxGetInstanceHandle(),dwThreadId);
 }
 __declspec(dllexport) void __stdcall StopHook()
@@ -79,6 +79,7 @@ int __stdcall NewRecv(DWORD s,char* buf,int len,int flags)
 {
 	int Result;
 	typedef  int (__stdcall*TRecv)(DWORD s,char* buf,int len,int flags);
+#ifndef _WIN64
 	__asm
 	{
 		pushad
@@ -88,6 +89,8 @@ int __stdcall NewRecv(DWORD s,char* buf,int len,int flags)
 	{
 		popad
 	}
+#endif // !_WIN64
+
 	Result=TRecv(theApp.Hook.OldFunction)(s,buf,len,flags);
 	::MessageBox(0,"O(∩_∩)O哈哈~","Fucked",0);
 	theApp.Hook.Change();
@@ -100,6 +103,8 @@ int __stdcall NewWSARecv(SOCKET s,LPWSABUF lpBuffers,DWORD dwBufferCount,LPDWORD
 	int Result;
 	typedef  int (__stdcall*TWSARecv)(SOCKET s,LPWSABUF lpBuffers,DWORD dwBufferCount,LPDWORD lpNumberOfBytesRecvd,
 		LPDWORD lpFlags,LPWSAOVERLAPPED lpOverlapped,LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
+
+#ifndef _WIN64
 	__asm
 	{
 		pushad
@@ -109,6 +114,8 @@ int __stdcall NewWSARecv(SOCKET s,LPWSABUF lpBuffers,DWORD dwBufferCount,LPDWORD
 	{
 		popad
 	}
+#endif // !_WIN64
+
 	Result=TWSARecv(theApp.Hook2.OldFunction)(s,lpBuffers,dwBufferCount,lpNumberOfBytesRecvd,
 		lpFlags,lpOverlapped,lpCompletionRoutine);
 
@@ -142,9 +149,9 @@ int __stdcall NewWSARecv(SOCKET s,LPWSABUF lpBuffers,DWORD dwBufferCount,LPDWORD
 
 	CString strText;
 	CString strTemp;
-	for ( int i=0; i<dwBufferCount; ++i ){
+	for ( unsigned int i=0; i<dwBufferCount; ++i ){
 		strText.Empty();
-		for ( int j=0; j<lpBuffers->len; ++j ){
+		for ( unsigned int j=0; j<lpBuffers->len; ++j ){
 			strTemp.Format(_T("%02X"),lpBuffers->buf[j]);
 			strText+=strTemp;
 		}
@@ -186,6 +193,7 @@ BOOL __stdcall newCreateProcess(
 		LPSTARTUPINFO lpStartupInfo,
 		LPPROCESS_INFORMATION lpProcessInformation
 		);
+#ifndef _WIN64
 	__asm
 	{
 		pushad
@@ -196,6 +204,7 @@ BOOL __stdcall newCreateProcess(
 	{
 		popad
 	}
+#endif // !_WIN64
 	Result=TCreateProcess(theApp.m_hkCreateProcess.OldFunction)(lpApplicationName,lpCommandLine,lpProcessAttributes,lpThreadAttributes,
 		bInheritHandles,dwCreationFlags,lpEnvironment,lpCurrentDirectory,lpStartupInfo,lpProcessInformation);
 
@@ -216,7 +225,7 @@ CHookDllApp::CHookDllApp()
 // The one and only CHookDllApp object
 
 CHookDllApp theApp;
-
+Tluaopen_customlib luaopen_star = NULL;
 
 // CHookDllApp initialization
 
@@ -225,48 +234,60 @@ BOOL CHookDllApp::InitInstance()
 	CWinApp::InitInstance();
 
 	//////////////////////////////////////////////////////////////////////////
+	TCHAR szBuff[MAX_PATH*2] = {0};
+	GetModuleFileName(this->m_hInstance, szBuff, sizeof(szBuff));
+	StrRChr(szBuff, NULL, '\\')[1] = 0;
+	m_strThisDir = szBuff;
 
-	hMapFile=OpenFileMapping(FILE_MAP_WRITE,FALSE,MappingFileName);
-	if (hMapFile==NULL){
-		hMapFile=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,sizeof(SHAREMEM),MappingFileName);
-	}else{
-		//可以打开映像说明这一次是注射到了目标程序中
-		TCHAR szBuff[MAX_PATH*2];
-		GetModuleFileName(this->m_hInstance,szBuff,sizeof(szBuff));
-		StrRChrI(szBuff,NULL,'\\')[1]=0;
+	GetModuleFileName(NULL, szBuff, sizeof(szBuff));
+	StrRChr(szBuff, NULL,'\\')[1] = 0;
+	m_strHostDir = szBuff;
 
-		///////////////////////////////////////////////
-		//指定进程才注入
-		//TCHAR szProcessName[MAX_PATH]={0};
-		//GetModuleFileName(NULL,szProcessName,_countof(szProcessName));
-		//if ( StrStrI(szProcessName,_T("HProtect.exe"))==NULL ){
-		//	return FALSE;
-		//}
-		///////////////////////////////////////////////
-
+	if ( m_strHostDir.CompareNoCase(m_strThisDir) != 0 ) {
 		TRACE0("成功注入到目标进程!\n");
-		//Hook.Create(recv,NewRecv);
-		//Hook.Change();
-		//Hook2.Create(WSARecv,NewWSARecv);
-		//Hook2.Change();
-		//m_hkCreateProcess.Create(CreateProcess,newCreateProcess);
-		//m_hkCreateProcess.Change();
 
-		m_pdlgMain=new CMainDlg;
-		m_pdlgMain->Create(CMainDlg::IDD,AfxGetMainWnd());
+#if 0
+		// 可以做一些HOOK
+		Hook.Create(recv,NewRecv);
+		Hook.Change();
+		Hook2.Create(WSARecv,NewWSARecv);
+		Hook2.Change();
+		m_hkCreateProcess.Create(CreateProcess,newCreateProcess);
+		m_hkCreateProcess.Change();
+#endif
+		// 加载Lua的库
+		CString strLuaDllFilePath = m_strThisDir + "lua.dll";
+		if ( GetFileAttributes(strLuaDllFilePath) != -1 ) {
+			HMODULE hModule = ::LoadLibrary(strLuaDllFilePath);
+			if ( hModule == NULL ) {
+				AfxMessageBox("lua.dll load failed");
+			}
+		}else{
+			AfxMessageBox("lua.dll not found");
+		}
+
+		// 加载Lua库：star
+		strLuaDllFilePath = m_strThisDir + STAR_LUA_LIB_NAME+ ".dll";
+		if ( GetFileAttributes(strLuaDllFilePath) != -1 ) {
+			HMODULE hModule = ::LoadLibrary(strLuaDllFilePath);
+			if ( hModule == NULL ) {
+				AfxMessageBox("star.dll load failed");
+			}else{
+				CString strFunctionName = CString("luaopen_") + STAR_LUA_LIB_NAME;
+				luaopen_star = (Tluaopen_customlib)GetProcAddress(hModule, strFunctionName);
+				if ( luaopen_star == NULL ) {
+					AfxMessageBox(strFunctionName + " not found");
+				}
+			}
+		}else{
+			AfxMessageBox("star.dll not found");
+		}
+
+		// 弹框
+		m_pdlgMain = new CMainDlg;
+		m_pdlgMain->Create(CMainDlg::IDD, AfxGetMainWnd());
 		m_pdlgMain->ShowWindow(SW_SHOW);
 	}
-
-	if (hMapFile==NULL){
-		::MessageBox(NULL,_T("不能建立共享内存!"),NULL,MB_OK|MB_ICONERROR);
-	}
-
-	pShareMem=(PSHAREMEM)MapViewOfFile(hMapFile,FILE_MAP_WRITE|FILE_MAP_READ,0,0,0);
-	if (pShareMem==NULL){
-		CloseHandle(hMapFile);
-		::MessageBox(NULL,_T("不能建立共享内存!"),NULL,MB_OK|MB_ICONERROR);
-	}
-
 	//////////////////////////////////////////////////////////////////////////
 
 	return TRUE;
@@ -275,7 +296,6 @@ BOOL CHookDllApp::InitInstance()
 
 int CHookDllApp::ExitInstance()
 {
-	::SendMessage(HWND(pShareMem->hMainWnd),WM_HOSTEXIT,NULL,NULL);
 	if (m_pdlgMain){
 		delete m_pdlgMain;
 		m_pdlgMain=NULL;
@@ -283,4 +303,3 @@ int CHookDllApp::ExitInstance()
 
 	return CWinApp::ExitInstance();
 }
-

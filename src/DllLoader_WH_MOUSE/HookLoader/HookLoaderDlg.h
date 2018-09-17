@@ -19,12 +19,12 @@ private:
 	HICON	m_hIconEmpty;
 	HWND	m_hWndLastFocus;
 
+	CString m_strStartPath;
+	CString m_strConfigFile;
+
 private:
-	HANDLE		m_hProcess;
 	DWORD		m_dwThreadId;
 
-	HANDLE		m_hMapFile;
-	PSHAREMEM	m_pShareMem;
 	TStartHook	StartHook;
 	TStopHook	StopHook;
 private:
@@ -58,4 +58,7 @@ public:
 	CStatic m_stcFinder;
 	CString m_szClassName;
 	int m_nHandle;
+
+	// ½ø³ÌÃû
+	CString m_strProcessName;
 };

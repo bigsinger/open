@@ -14,10 +14,24 @@
 //#include "../../export/comdef/CommonMacro.h"
 
 
+extern "C"
+{
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
+
+
 
 //注意:一定要加上stdcall
 extern "C" __declspec(dllexport) void __stdcall StartHook(HANDLE hMainWnd,DWORD dwThreadId);
 extern "C" __declspec(dllexport) void __stdcall StopHook();
+
+
+//////////////////////////////////////////////////////////////////////////
+typedef int (__stdcall*Tluaopen_customlib)(lua_State* L);
+extern Tluaopen_customlib luaopen_star;
+
 
 
 // CHookDllApp
@@ -26,6 +40,10 @@ extern "C" __declspec(dllexport) void __stdcall StopHook();
 
 class CHookDllApp : public CWinApp
 {
+private:
+	CString m_strThisDir;
+	CString m_strHostDir;
+
 public:
 	CHookClass	Hook;
 	CHookClass	Hook2;

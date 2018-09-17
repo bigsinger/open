@@ -14,6 +14,7 @@
 #define IDC_EDIT_CLASS_NAME             1003
 #define IDC_EDIT2                       1004
 #define IDC_EDIT_HANDLE                 1004
+#define IDC_EDIT_PROCESSNAME            1005
 
 // Next default values for new objects
 // 

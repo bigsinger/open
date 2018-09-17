@@ -6,7 +6,9 @@
 #include "HookLoaderDlg.h"
 #include "Tlhelp32.h"
 #include <Shlwapi.h>
-
+#include <vector>
+#include <algorithm>
+using namespace std;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,19 +25,21 @@ CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 	, m_szClassName(_T(""))
 	, m_nHandle(0)
 	, m_dwThreadId(0)
+	, m_strProcessName(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 
-	TCHAR szBuff[MAX_PATH*2];
+	TCHAR szBuff[MAX_PATH*2] = {0};
 	GetModuleFileName(NULL,szBuff,sizeof(szBuff));
-	StrRChrI(szBuff,NULL,'\\')[1]=0;
-	lstrcat(szBuff,_T("HookDll.dll"));
+	StrRChr(szBuff,NULL,'\\')[1] = 0;
+	m_strStartPath = szBuff;
+	m_strConfigFile = m_strStartPath + _T("config.ini");
 
-	HMODULE hModule=LoadLibrary(szBuff);
+	HMODULE hModule = LoadLibrary(m_strStartPath + _T("HookDll.dll"));
 	if (hModule){
-		StartHook=(TStartHook)GetProcAddress(hModule,"StartHook");
-		StopHook=(TStopHook)GetProcAddress(hModule,"StopHook");
+		StartHook=(TStartHook)GetProcAddress(hModule, "StartHook");
+		StopHook=(TStopHook)GetProcAddress(hModule, "StopHook");
 	}else{
 		AfxMessageBox(_T("加载Hook.dll失败"));
 	}
@@ -53,6 +57,7 @@ void CHookLoadDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FINDER, m_stcFinder);
 	DDX_Text(pDX, IDC_EDIT_CLASS_NAME, m_szClassName);
 	DDX_Text(pDX, IDC_EDIT_HANDLE, m_nHandle);
+	DDX_Text(pDX, IDC_EDIT_PROCESSNAME, m_strProcessName);
 }
 
 BEGIN_MESSAGE_MAP(CHookLoadDlg, CDialog)
@@ -78,28 +83,16 @@ BOOL CHookLoadDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	/************************************************************************/
-	m_hMapFile=OpenFileMapping(FILE_MAP_WRITE,FALSE,MappingFileName);
-	if (m_hMapFile==NULL)
-	{
-		m_hMapFile=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,sizeof(SHAREMEM),MappingFileName);
-	}
-	if (m_hMapFile==NULL)
-	{
-		::MessageBox(NULL,_T("不能建立共享内存!"),NULL,MB_OK|MB_ICONERROR);
-	}
-	m_pShareMem=(PSHAREMEM)MapViewOfFile(m_hMapFile,FILE_MAP_WRITE|FILE_MAP_READ,0,0,0);
-	if (m_pShareMem==NULL)
-	{
-		CloseHandle(m_hMapFile);
-		::MessageBox(NULL,_T("不能映射共享内存!"),NULL,MB_OK|MB_ICONERROR);
-	}
-
-	/************************************************************************/
 	m_hIconOrig  = LoadIcon(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDI_ORIG));
 	m_hIconEmpty = LoadIcon(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDI_EMPTY));
 	m_stcFinder.GetWindowRect(&m_rcFinder);
 	ScreenToClient(&m_rcFinder);
 	/************************************************************************/
+
+	TCHAR szBuff[MAX_PATH] = {};
+	GetPrivateProfileString("main", "pname", "notepad.exe", szBuff, sizeof(szBuff), m_strConfigFile);
+	m_strProcessName = szBuff;
+	UpdateData(FALSE);
 	
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -143,21 +136,79 @@ DWORD GetThreadIdFromPID(DWORD dwProcessId)
 	return 0;
 }
 
+// 获取进程名为xx的pid
+int getPIdFromName(LPCTSTR szProcessName, vector<DWORD>&vtpids, int nLimit) {
+	if (szProcessName == NULL) {
+		return 0;
+	}
+
+	string strProcessName = szProcessName;
+	transform(strProcessName.begin(), strProcessName.end(), strProcessName.begin(), _totlower);
+
+	PROCESSENTRY32	ProcessEntry32;
+	HANDLE			hSnap = INVALID_HANDLE_VALUE;
+
+	ProcessEntry32.dwSize = sizeof(PROCESSENTRY32);
+
+	hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hSnap == INVALID_HANDLE_VALUE) {
+		return 0;
+	}
+
+	int ret = Process32First(hSnap, &ProcessEntry32);
+	while (ret) {
+		_tcslwr_s(ProcessEntry32.szExeFile);
+		if (_tcsstr(ProcessEntry32.szExeFile, strProcessName.c_str())) {
+			vtpids.push_back(ProcessEntry32.th32ProcessID);
+			if (vtpids.size() >= nLimit) {
+				break;
+			}
+		}
+		ret = Process32Next(hSnap, &ProcessEntry32);
+	}
+
+	CloseHandle(hSnap);
+
+	return (int)vtpids.size();
+}
+
+//查找一个进程名对应的pid
+DWORD getPIdFromName(const char *szProcessName) {
+	DWORD dwProcessId = 0;
+	vector<DWORD>vtpids;
+
+	getPIdFromName(szProcessName, vtpids, 1);
+	if (vtpids.empty() == false) {
+		dwProcessId = vtpids[0];
+	}
+
+	return dwProcessId;
+}
+
 void CHookLoadDlg::OnBnClickedButtonHook()
 {
-	if (m_nHandle){
-		DWORD cpid;
+	DWORD dwProcessId = 0;
 
-		GetWindowThreadProcessId((HWND)m_nHandle,&cpid);
-		m_hProcess=OpenProcess(PROCESS_VM_READ,false,cpid);
-		m_dwThreadId=GetThreadIdFromPID(cpid);
+	CString strLastProcessName = m_strProcessName;
+	UpdateData();
+	if ( strLastProcessName.CompareNoCase(m_strProcessName) !=0 ) {
+		WritePrivateProfileString("main", "pname", m_strProcessName, m_strConfigFile);
 	}
+
+
+	if (m_nHandle){
+		GetWindowThreadProcessId((HWND)((PBYTE)NULL + m_nHandle), &dwProcessId);
+	}else {
+		// 通过进程名找
+		dwProcessId = getPIdFromName(m_strProcessName);
+	}
+	m_dwThreadId = GetThreadIdFromPID(dwProcessId);
 
 	if (m_dwThreadId == 0){
 		::MessageBox(NULL,_T("没有选定目标,将使用全局HOOK"),NULL,MB_OK|MB_ICONERROR);
 	}
 
-	StartHook((HANDLE)m_nHandle,m_dwThreadId);
+	StartHook((HWND)((PBYTE)NULL + m_nHandle), m_dwThreadId);
 	TRACE0("开始HOOK……\n");
 }
 
@@ -218,7 +269,7 @@ void CHookLoadDlg::HiliTheWindow(CPoint point)
 
 	GetClassName(hWnd,m_szClassName.GetBuffer(128),128);
 	m_szClassName.ReleaseBuffer();
-	m_nHandle=(int)hWnd;
+	m_nHandle = (int)hWnd;
 
 	UpdateData(FALSE);
 

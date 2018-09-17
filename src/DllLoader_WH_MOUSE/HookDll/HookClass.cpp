@@ -25,7 +25,7 @@ CHookClass::CHookClass(void)
 
 void CHookClass::Create(PVOID OldFun,PVOID NewFun)
 {
-	DWORD nCount;
+	SIZE_T nCount = 0;
 
 	OldFunction=OldFun;
 	NewFunction=GetFuncRealBase(NewFun);
@@ -76,7 +76,7 @@ PVOID CHookClass::GetFuncRealBase(PVOID pFunc)
 
 void CHookClass::Restore()
 {
-	DWORD nCount;
+	SIZE_T nCount = 0;
 
 	if (bTrapped==FALSE||hProcess==NULL||OldFunction==NULL||NewFunction==NULL)
 	{
@@ -91,7 +91,7 @@ void CHookClass::Restore()
 
 void CHookClass::Change()
 {
-	DWORD nCount;
+	SIZE_T nCount = 0;
 
 	if (bTrapped||hProcess==NULL||OldFunction==NULL||NewFunction==NULL)
 	{

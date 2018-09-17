@@ -1,5 +1,5 @@
 #pragma once
-
+#include <AnchorCtrl/AnchorCtrl.h>
 
 // CMainDlg 对话框
 
@@ -19,8 +19,19 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	virtual void OnCancel();
 
 	DECLARE_MESSAGE_MAP()
 public:
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnBnClickedOk();
+
+	// Lua脚本内容
+	CString m_strScriptText;
+
+private:
+	CAnchorCtrl m_anchor;
 };
