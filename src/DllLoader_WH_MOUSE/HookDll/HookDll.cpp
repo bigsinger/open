@@ -255,6 +255,8 @@ BOOL CHookDllApp::InitInstance()
 		m_hkCreateProcess.Create(CreateProcess,newCreateProcess);
 		m_hkCreateProcess.Change();
 #endif
+
+#if 0
 		// ¼ÓÔØLuaµÄ¿â
 		CString strLuaDllFilePath = m_strThisDir + "lua.dll";
 		if ( GetFileAttributes(strLuaDllFilePath) != -1 ) {
@@ -265,9 +267,10 @@ BOOL CHookDllApp::InitInstance()
 		}else{
 			AfxMessageBox("lua.dll not found");
 		}
+#endif
 
 		// ¼ÓÔØLua¿â£ºstar
-		strLuaDllFilePath = m_strThisDir + STAR_LUA_LIB_NAME+ ".dll";
+		CString strLuaDllFilePath = m_strThisDir + STAR_LUA_LIB_NAME+ ".dll";
 		if ( GetFileAttributes(strLuaDllFilePath) != -1 ) {
 			HMODULE hModule = ::LoadLibrary(strLuaDllFilePath);
 			if ( hModule == NULL ) {

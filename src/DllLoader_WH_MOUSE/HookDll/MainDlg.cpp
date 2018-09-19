@@ -6,9 +6,9 @@
 #include "MainDlg.h"
 
 #ifdef _DEBUG
-#pragma comment(lib,"lua64D.lib")
+#pragma comment(lib,"lua5364D.lib")
 #else
-#pragma comment(lib,"lua64.lib")
+#pragma comment(lib,"lua5364.lib")
 #endif
 
 // CMainDlg 对话框
@@ -26,11 +26,11 @@ CMainDlg::~CMainDlg()
 }
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg) {
-	//屏蔽ESC关闭窗体/
+	// 屏蔽ESC关闭窗体
 	if( pMsg->message==WM_KEYDOWN && pMsg->wParam==VK_ESCAPE ) {
 		return TRUE;
 	} else {
-		return CDialog::PreTranslateMessage(pMsg);
+		return __super::PreTranslateMessage(pMsg);
 	}
 }
 
