@@ -92,6 +92,7 @@ BOOL CHookLoadDlg::OnInitDialog()
 	TCHAR szBuff[MAX_PATH] = {};
 	GetPrivateProfileString("main", "pname", "notepad.exe", szBuff, sizeof(szBuff), m_strConfigFile);
 	m_strProcessName = szBuff;
+	m_strLastProcessName = m_strProcessName;
 	UpdateData(FALSE);
 	
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -215,9 +216,8 @@ void CHookLoadDlg::OnBnClickedButtonHook()
 {
 	DWORD dwProcessId = 0;
 
-	CString strLastProcessName = m_strProcessName;
 	UpdateData();
-	if ( strLastProcessName.CompareNoCase(m_strProcessName) !=0 ) {
+	if ( m_strLastProcessName.CompareNoCase(m_strProcessName) !=0 ) {
 		WritePrivateProfileString("main", "pname", m_strProcessName, m_strConfigFile);
 	}
 

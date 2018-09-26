@@ -61,4 +61,5 @@ public:
 
 	// ½ø³ÌÃû
 	CString m_strProcessName;
+	CString m_strLastProcessName;
 };
