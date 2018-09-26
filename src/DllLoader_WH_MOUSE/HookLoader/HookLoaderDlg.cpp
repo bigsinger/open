@@ -185,6 +185,32 @@ DWORD getPIdFromName(const char *szProcessName) {
 	return dwProcessId;
 }
 
+CString getProcessName(DWORD dwProcessId)
+{
+	CString strName;
+	PROCESSENTRY32	ProcessEntry32;
+	HANDLE			hSnap;
+	int				ret;
+
+	ProcessEntry32.dwSize = sizeof (PROCESSENTRY32);
+
+	hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if(hSnap != INVALID_HANDLE_VALUE){
+		ret = Process32First(hSnap,&ProcessEntry32);
+		while (ret){
+			if ( ProcessEntry32.th32ProcessID==dwProcessId  ){
+				strName=ProcessEntry32.szExeFile;
+				break;
+			}
+			ret = Process32Next(hSnap, &ProcessEntry32);
+		}
+
+		CloseHandle(hSnap);
+	}
+
+	return strName;
+}
+
 void CHookLoadDlg::OnBnClickedButtonHook()
 {
 	DWORD dwProcessId = 0;
@@ -262,14 +288,15 @@ void CHookLoadDlg::HiliTheWindow(CPoint point)
 {
 	HWND hWnd = ::WindowFromPoint(point);
 	if(!hWnd) return;
-	DWORD dwProcess = 0;
-	GetWindowThreadProcessId(hWnd,&dwProcess);
-	if(dwProcess == GetCurrentProcessId()) 
+	DWORD dwProcessId = 0;
+	GetWindowThreadProcessId(hWnd, &dwProcessId);
+	if(dwProcessId == GetCurrentProcessId()) 
 		return;
 
 	GetClassName(hWnd,m_szClassName.GetBuffer(128),128);
 	m_szClassName.ReleaseBuffer();
 	m_nHandle = (int)hWnd;
+	m_strProcessName = getProcessName(dwProcessId);
 
 	UpdateData(FALSE);
 
