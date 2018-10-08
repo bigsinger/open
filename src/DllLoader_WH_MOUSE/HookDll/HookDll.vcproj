@@ -469,11 +469,11 @@
 			Name="¹«¹²¿â"
 			>
 			<File
-				RelativePath="..\..\..\..\lib\trunk\controls\AnchorCtrl\AnchorCtrl.cpp"
+				RelativePath="..\..\..\..\..\lib\trunk\controls\AnchorCtrl\AnchorCtrl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\lib\trunk\controls\AnchorCtrl\AnchorCtrl.h"
+				RelativePath="..\..\..\..\..\lib\trunk\controls\AnchorCtrl\AnchorCtrl.h"
 				>
 			</File>
 		</Filter>
