@@ -63,7 +63,7 @@ BOOL CMainDlg::OnInitDialog() {
 	
 	m_anchor.SetParent(this);
 	m_anchor.Fix(IDC_EDIT1, CAnchorCtrl::LeftTopRightBottom);
-	m_anchor.Fix(IDOK, CAnchorCtrl::RightBottom);
+	m_anchor.Fix(IDOK, CAnchorCtrl::TopRight);
 
 	return TRUE;
 }

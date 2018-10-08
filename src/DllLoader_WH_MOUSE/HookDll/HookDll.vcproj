@@ -47,6 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="F:\bigsinger\lib\trunk;F:\bigsinger\lib\trunk\lua53"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -72,6 +73,7 @@
 				Name="VCLinkerTool"
 				OutputFile="..\bin\$(ProjectName).dll"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="F:\bigsinger\lib\trunk\2008static"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\HookDll.def"
 				GenerateDebugInformation="true"
@@ -216,6 +218,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="F:\bigsinger\lib\trunk;F:\bigsinger\lib\trunk\lua53"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
@@ -239,6 +242,7 @@
 				Name="VCLinkerTool"
 				OutputFile="..\bin\$(ProjectName).dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="F:\bigsinger\lib\trunk\2008static;"
 				ModuleDefinitionFile=".\HookDll.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
