@@ -38,8 +38,8 @@ CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 
 	HMODULE hModule = LoadLibrary(m_strStartPath + _T("HookDll.dll"));
 	if (hModule){
-		StartHook=(TStartHook)GetProcAddress(hModule, "StartHook");
-		StopHook=(TStopHook)GetProcAddress(hModule, "StopHook");
+		StartHook = (TStartHook)GetProcAddress(hModule, "StartHook");
+		StopHook = (TStopHook)GetProcAddress(hModule, "StopHook");
 	}else{
 		AfxMessageBox(_T("加载Hook.dll失败"));
 	}
@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CHookLoadDlg, CDialog)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_BN_CLICKED(IDC_BUTTON_UNHOOK, &CHookLoadDlg::OnBnClickedButtonUnhook)
 END_MESSAGE_MAP()
 
 
@@ -212,32 +213,6 @@ CString getProcessName(DWORD dwProcessId)
 	return strName;
 }
 
-void CHookLoadDlg::OnBnClickedButtonHook()
-{
-	DWORD dwProcessId = 0;
-
-	UpdateData();
-	if ( m_strLastProcessName.CompareNoCase(m_strProcessName) !=0 ) {
-		WritePrivateProfileString("main", "pname", m_strProcessName, m_strConfigFile);
-	}
-
-
-	if (m_nHandle){
-		GetWindowThreadProcessId((HWND)((PBYTE)NULL + m_nHandle), &dwProcessId);
-	}else {
-		// 通过进程名找
-		dwProcessId = getPIdFromName(m_strProcessName);
-	}
-	m_dwThreadId = GetThreadIdFromPID(dwProcessId);
-
-	if (m_dwThreadId == 0){
-		::MessageBox(NULL,_T("没有选定目标,将使用全局HOOK"),NULL,MB_OK|MB_ICONERROR);
-	}
-
-	StartHook((HWND)((PBYTE)NULL + m_nHandle), m_dwThreadId);
-	TRACE0("开始HOOK……\n");
-}
-
 void CHookLoadDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if(m_rcFinder.PtInRect(point))
@@ -323,4 +298,35 @@ void CHookLoadDlg::HiliTheWindow(CPoint point)
 		::DeleteObject(hPenOld);
 		::ReleaseDC(hWnd,hdc);
 	}
+}
+
+void CHookLoadDlg::OnBnClickedButtonHook()
+{
+	DWORD dwProcessId = 0;
+
+	UpdateData();
+	if ( m_strLastProcessName.CompareNoCase(m_strProcessName) !=0 ) {
+		WritePrivateProfileString("main", "pname", m_strProcessName, m_strConfigFile);
+	}
+
+
+	if (m_nHandle){
+		GetWindowThreadProcessId((HWND)((PBYTE)NULL + m_nHandle), &dwProcessId);
+	}else {
+		// 通过进程名找
+		dwProcessId = getPIdFromName(m_strProcessName);
+	}
+	m_dwThreadId = GetThreadIdFromPID(dwProcessId);
+
+	if (m_dwThreadId == 0){
+		::MessageBox(NULL,_T("没有选定目标,将使用全局HOOK"),NULL,MB_OK|MB_ICONERROR);
+	}
+
+	StartHook((HWND)((PBYTE)NULL + m_nHandle), m_dwThreadId);
+	TRACE0("开始HOOK……\n");
+}
+
+void CHookLoadDlg::OnBnClickedButtonUnhook()
+{
+	StopHook();
 }

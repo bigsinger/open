@@ -15,6 +15,8 @@
 #define IDC_EDIT2                       1004
 #define IDC_EDIT_HANDLE                 1004
 #define IDC_EDIT_PROCESSNAME            1005
+#define IDC_BUTTON_HOOK2                1006
+#define IDC_BUTTON_UNHOOK               1006
 
 // Next default values for new objects
 // 
