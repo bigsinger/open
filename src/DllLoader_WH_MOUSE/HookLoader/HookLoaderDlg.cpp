@@ -326,7 +326,15 @@ void CHookLoadDlg::OnBnClickedButtonHook()
 	TRACE0("¿ªÊ¼HOOK¡­¡­\n");
 }
 
-void CHookLoadDlg::OnBnClickedButtonUnhook()
-{
+void CHookLoadDlg::OnBnClickedButtonUnhook() {
 	StopHook();
+}
+
+void CHookLoadDlg::OnOK() {
+	StopHook();
+	__super::OnOK();
+}
+void CHookLoadDlg::OnCancel(){
+	StopHook();
+	__super::OnCancel();
 }

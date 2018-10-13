@@ -38,7 +38,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-HHOOK		hhk;
+HHOOK		hhk = NULL;
 HANDLE		hMapFile;
 PSHAREMEM	pShareMem;
 int			nSize;
@@ -61,14 +61,15 @@ LRESULT MouseProc(int nCode,WPARAM wParam,LPARAM lParam)
 
 __declspec(dllexport) void __stdcall StartHook(HANDLE hMainWnd,DWORD dwThreadId)
 {
-	hhk=SetWindowsHookEx(WH_MOUSE,(HOOKPROC)MouseProc,AfxGetInstanceHandle(),dwThreadId);
+	if (hhk == NULL){
+		hhk = SetWindowsHookEx(WH_MOUSE, (HOOKPROC)MouseProc, AfxGetInstanceHandle(), dwThreadId);
+	}
 }
 __declspec(dllexport) void __stdcall StopHook()
 {
-	if (hhk)
-	{
+	if (hhk) {
 		UnhookWindowsHookEx(hhk);
-		hhk=NULL;
+		hhk = NULL;
 	}
 }
 //////////////////////////////////////////////////////////////////////////
