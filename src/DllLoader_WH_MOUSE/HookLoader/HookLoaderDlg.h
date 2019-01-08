@@ -5,12 +5,11 @@
 #include "afxwin.h"
 #include "../HookDll/ShareMemType.h"
 
-typedef void (__stdcall*TStartHook)(HANDLE hMainWnd,DWORD dwThreadId);
-typedef void (__stdcall*TStopHook)();
+typedef void(__stdcall*TStartHook)(HANDLE hMainWnd, DWORD dwThreadId);
+typedef void(__stdcall*TStopHook)();
 
 // CHookLoadDlg 对话框
-class CHookLoadDlg : public CDialog
-{
+class CHookLoadDlg : public CDialog {
 private:
 	BOOL	m_bIsDrag;
 	BOOL	m_bMouseDown;
@@ -25,19 +24,19 @@ private:
 private:
 	DWORD		m_dwThreadId;
 
-	TStartHook	StartHook;
-	TStopHook	StopHook;
+	TStartHook	StartHook = NULL;
+	TStopHook	StopHook = NULL;
 private:
 	void HiliTheWindow(CPoint point);
 
-// 构造
+	// 构造
 public:
 	CHookLoadDlg(CWnd* pParent = NULL);	// 标准构造函数
 
 // 对话框数据
 	enum { IDD = IDD_HOOKTEST_DIALOG };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
 // 实现
@@ -48,8 +47,6 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual void OnCancel();
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonHook();
