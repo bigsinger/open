@@ -43,18 +43,20 @@
     <None Include="res\drag.cur">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="res\empty.ico">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="res\HookLoader.ico">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="res\HookLoader.rc2">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="res\orig.ico">
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\empty.ico">
       <Filter>资源文件</Filter>
-    </None>
+    </Image>
+    <Image Include="res\HookLoader.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\orig.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HookLoader.rc">

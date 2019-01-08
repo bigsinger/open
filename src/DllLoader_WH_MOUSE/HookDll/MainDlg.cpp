@@ -6,9 +6,9 @@
 #include "MainDlg.h"
 
 #ifdef _DEBUG
-#pragma comment(lib,"lua5364D.lib")
+#pragma comment(lib,"lua53D.lib")
 #else
-#pragma comment(lib,"lua5364.lib")
+#pragma comment(lib,"lua53.lib")
 #endif
 
 // CMainDlg ¶Ô»°¿ò

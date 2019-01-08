@@ -1,5 +1,5 @@
 #pragma once
-#include <AnchorCtrl/AnchorCtrl.h>
+#include "AnchorCtrl.h"
 
 // CMainDlg ¶Ô»°¿ò
 
