@@ -16,16 +16,8 @@ using namespace std;
 
 
 // CHookLoadDlg ¶Ô»°¿ò
-
-
-
-
 CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CHookLoadDlg::IDD, pParent)
-	, m_szClassName(_T(""))
-	, m_nHandle(0)
-	, m_dwThreadId(0)
-	, m_strProcessName(_T("")) {
+	: CDialog(CHookLoadDlg::IDD, pParent) {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 

@@ -7,11 +7,8 @@
 #error "include 'stdafx.h' before including this file for PCH"
 #endif
 
-#include "resource.h"		// main symbols
-#include "ShareMemType.h"
+#include "resource.h"
 #include "MainDlg.h"
-#include "HookClass.h"
-//#include "../../export/comdef/CommonMacro.h"
 
 
 extern "C"
@@ -44,13 +41,14 @@ private:
 	CString m_strHostDir;
 
 public:
-	CHookClass	Hook;
-	CHookClass	Hook2;
-	CHookClass	m_hkCreateProcess;
 	CHookDllApp();
 	CMainDlg*m_pdlgMain;
 
-	// Overrides
+private:
+	void loadLuaStarDll();
+	void loadDll();
+	void showDlg();
+
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();

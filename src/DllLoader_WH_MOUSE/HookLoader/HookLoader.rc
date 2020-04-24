@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(中华人民共和国) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-#ifdef _WIN32
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 #pragma code_page(936)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -65,21 +63,24 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\HookLoader.ico"
+
 IDI_ORIG                ICON                    "res\\orig.ico"
+
 IDI_EMPTY               ICON                    "res\\empty.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_HOOKTEST_DIALOG DIALOGEX 0, 0, 220, 75
+IDD_HOOKTEST_DIALOG DIALOGEX 0, 0, 221, 79
 STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOPMOST | WS_EX_APPWINDOW
 CAPTION "HookLoader"
 FONT 9, "宋体", 0, 0, 0x1
 BEGIN
-    PUSHBUTTON      "HOOK",IDC_BUTTON_HOOK,172,41,41,15
+    PUSHBUTTON      "HOOK",IDC_BUTTON_HOOK,173,41,41,15
     ICON            IDI_ORIG,IDC_FINDER,192,7,21,21
     EDITTEXT        IDC_EDIT_CLASS_NAME,64,7,106,14,ES_AUTOHSCROLL
     LTEXT           "Class Name:",IDC_STATIC,7,9,47,8
@@ -87,8 +88,8 @@ BEGIN
     EDITTEXT        IDC_EDIT_HANDLE,64,23,106,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_PROCESSNAME,64,41,106,14,ES_AUTOHSCROLL
     LTEXT           "Process Name:",IDC_STATIC,7,43,54,8
-    LTEXT           "Tip: 请勿将本工具与测试目标放在同一目录内",IDC_STATIC,7,63,181,8
-    PUSHBUTTON      "UNHOOK",IDC_BUTTON_UNHOOK,172,59,41,15
+    LTEXT           "Tip: 请勿将本工具与测试目标放在同一目录内",IDC_STATIC,7,64,165,8
+    PUSHBUTTON      "UNHOOK",IDC_BUTTON_UNHOOK,173,59,41,15
 END
 
 
@@ -137,13 +138,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_HOOKTEST_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 213
+        RIGHTMARGIN, 214
         TOPMARGIN, 7
+        BOTTOMMARGIN, 74
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -155,7 +157,19 @@ END
 //
 
 IDC_DRAG                CURSOR                  "res\\drag.cur"
-#endif    // 中文(中华人民共和国) resources
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_HOOKTEST_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

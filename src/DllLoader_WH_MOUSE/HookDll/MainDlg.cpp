@@ -72,13 +72,6 @@ void CMainDlg::OnSize(UINT nType, int cx, int cy) {
 
 void CMainDlg::OnBnClickedOk() {
 	UpdateData(TRUE);
-	//char szCode[]={"\0xB8\0x00\0x04\0x00\0x00\0x89\0x45\0xF8\0x90\0x90\0x90\0x90\0x90\0x90\0x90\0x90"};
-	//memcpy( PBYTE(NULL)+0x0047278C,szCode,sizeof(szCode) );
-
-	//char szCode[]={"\0xB8\0x40\0x01\0x00\0x00"};
-	//memcpy( PBYTE(NULL)+0x00472787,szCode,sizeof(szCode) );
-	//AfxMessageBox(_T("patched OK"));
-	//AfxBeginThread(TheadDetectPlug,NULL);
 
 	lua_State* L = luaL_newstate();
 	if (L) {
@@ -96,10 +89,4 @@ void CMainDlg::OnOK() {
 
 void CMainDlg::OnCancel() {
 	AfxMessageBox("ÇëÍË³ö×¢ÈëÆ÷");
-}
-
-UINT CMainDlg::TheadDetectPlug(LPVOID lParam) {
-	//TRACE0("\n");
-
-	return 0;
 }

@@ -3,7 +3,6 @@
 
 #pragma once
 #include "afxwin.h"
-#include "../HookDll/ShareMemType.h"
 
 typedef void(__stdcall*TStartHook)(HANDLE hMainWnd, DWORD dwThreadId);
 typedef void(__stdcall*TStopHook)();
@@ -22,7 +21,7 @@ private:
 	CString m_strConfigFile;
 
 private:
-	DWORD		m_dwThreadId;
+	DWORD		m_dwThreadId = 0;
 
 	TStartHook	StartHook = NULL;
 	TStopHook	StopHook = NULL;
@@ -56,7 +55,7 @@ public:
 public:
 	CStatic m_stcFinder;
 	CString m_szClassName;
-	int m_nHandle;
+	int m_nHandle = 0;
 
 	// ½ø³ÌÃû
 	CString m_strProcessName;

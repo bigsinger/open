@@ -13,8 +13,6 @@ public:
 	// 对话框数据
 	enum { IDD = IDD_DIALOG_MAIN };
 
-	UINT static TheadDetectPlug(LPVOID lParam);
-
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持

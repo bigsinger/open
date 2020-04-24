@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "HookDll.h"
 #include <Shlwapi.h>
-#include <Winsock2.h>
 #include "Constant.h"
 
 #ifdef _DEBUG
@@ -40,7 +39,6 @@
 //////////////////////////////////////////////////////////////////////////
 HHOOK		hhk = NULL;
 HANDLE		hMapFile;
-PSHAREMEM	pShareMem;
 int			nSize;
 //////////////////////////////////////////////////////////////////////////
 UINT		nTimerId;
@@ -70,142 +68,6 @@ __declspec(dllexport) void __stdcall StopHook() {
 	}
 }
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-int __stdcall NewRecv(DWORD s, char* buf, int len, int flags) {
-	int Result;
-	typedef  int(__stdcall*TRecv)(DWORD s, char* buf, int len, int flags);
-#ifndef _WIN64
-	__asm
-	{
-		pushad
-	}
-	theApp.Hook.Restore();
-	__asm
-	{
-		popad
-	}
-#endif // !_WIN64
-
-	Result = TRecv(theApp.Hook.OldFunction)(s, buf, len, flags);
-	::MessageBox(0, "O(∩_∩)O哈哈~", "Fucked", 0);
-	theApp.Hook.Change();
-	return Result;
-	}
-//////////////////////////////////////////////////////////////////////////
-int __stdcall NewWSARecv(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesRecvd,
-	LPDWORD lpFlags, LPWSAOVERLAPPED lpOverlapped, LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) {
-	int Result;
-	typedef  int(__stdcall*TWSARecv)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesRecvd,
-		LPDWORD lpFlags, LPWSAOVERLAPPED lpOverlapped, LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
-
-#ifndef _WIN64
-	__asm
-	{
-		pushad
-	}
-	theApp.Hook2.Restore();
-	__asm
-	{
-		popad
-	}
-#endif // !_WIN64
-
-	Result = TWSARecv(theApp.Hook2.OldFunction)(s, lpBuffers, dwBufferCount, lpNumberOfBytesRecvd,
-		lpFlags, lpOverlapped, lpCompletionRoutine);
-
-	unsigned char data[352] = {
-		0x48, 0x54, 0x54, 0x50, 0x2F, 0x31, 0x2E, 0x31, 0x20, 0x32, 0x30, 0x30, 0x20, 0x4F, 0x4B, 0x0D,
-		0x0A, 0x43, 0x61, 0x63, 0x68, 0x65, 0x2D, 0x43, 0x6F, 0x6E, 0x74, 0x72, 0x6F, 0x6C, 0x3A, 0x20,
-		0x70, 0x72, 0x69, 0x76, 0x61, 0x74, 0x65, 0x0D, 0x0A, 0x44, 0x61, 0x74, 0x65, 0x3A, 0x20, 0x57,
-		0x65, 0x64, 0x2C, 0x20, 0x30, 0x38, 0x20, 0x4A, 0x75, 0x6E, 0x20, 0x32, 0x30, 0x31, 0x31, 0x20,
-		0x30, 0x34, 0x3A, 0x35, 0x37, 0x3A, 0x30, 0x34, 0x20, 0x47, 0x4D, 0x54, 0x0D, 0x0A, 0x43, 0x6F,
-		0x6E, 0x74, 0x65, 0x6E, 0x74, 0x2D, 0x4C, 0x65, 0x6E, 0x67, 0x74, 0x68, 0x3A, 0x20, 0x31, 0x30,
-		0x39, 0x0D, 0x0A, 0x43, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74, 0x2D, 0x54, 0x79, 0x70, 0x65, 0x3A,
-		0x20, 0x74, 0x65, 0x78, 0x74, 0x2F, 0x68, 0x74, 0x6D, 0x6C, 0x0D, 0x0A, 0x53, 0x65, 0x72, 0x76,
-		0x65, 0x72, 0x3A, 0x20, 0x4D, 0x69, 0x63, 0x72, 0x6F, 0x73, 0x6F, 0x66, 0x74, 0x2D, 0x49, 0x49,
-		0x53, 0x2F, 0x36, 0x2E, 0x30, 0x0D, 0x0A, 0x58, 0x2D, 0x50, 0x6F, 0x77, 0x65, 0x72, 0x65, 0x64,
-		0x2D, 0x42, 0x79, 0x3A, 0x20, 0x41, 0x53, 0x50, 0x2E, 0x4E, 0x45, 0x54, 0x0D, 0x0A, 0x53, 0x65,
-		0x74, 0x2D, 0x43, 0x6F, 0x6F, 0x6B, 0x69, 0x65, 0x3A, 0x20, 0x41, 0x53, 0x50, 0x53, 0x45, 0x53,
-		0x53, 0x49, 0x4F, 0x4E, 0x49, 0x44, 0x51, 0x53, 0x54, 0x51, 0x44, 0x42, 0x53, 0x54, 0x3D, 0x50,
-		0x42, 0x4E, 0x48, 0x44, 0x46, 0x48, 0x44, 0x4A, 0x43, 0x4A, 0x43, 0x4E, 0x4D, 0x4B, 0x47, 0x48,
-		0x48, 0x47, 0x4A, 0x4D, 0x48, 0x4B, 0x41, 0x3B, 0x20, 0x70, 0x61, 0x74, 0x68, 0x3D, 0x2F, 0x0D,
-		0x0A, 0x0D, 0x0A, 0x20, 0x20, 0x20, 0x31, 0x4B, 0x46, 0x34, 0x33, 0x35, 0x32, 0x44, 0x35, 0x46,
-		0x39, 0x43, 0x45, 0x30, 0x30, 0x38, 0x34, 0x37, 0x34, 0x45, 0x31, 0x43, 0x38, 0x46, 0x32, 0x33,
-		0x32, 0x43, 0x44, 0x44, 0x42, 0x45, 0x41, 0x30, 0x44, 0x32, 0x34, 0x36, 0x41, 0x33, 0x37, 0x42,
-		0x41, 0x31, 0x34, 0x34, 0x42, 0x37, 0x38, 0x43, 0x37, 0x44, 0x36, 0x31, 0x46, 0x42, 0x43, 0x43,
-		0x33, 0x38, 0x42, 0x33, 0x41, 0x34, 0x37, 0x36, 0x42, 0x42, 0x31, 0x42, 0x33, 0x45, 0x37, 0x36,
-		0x44, 0x30, 0x30, 0x36, 0x32, 0x44, 0x33, 0x36, 0x39, 0x35, 0x41, 0x32, 0x36, 0x42, 0x32, 0x44,
-		0x43, 0x39, 0x33, 0x38, 0x32, 0x44, 0x34, 0x30, 0x61, 0x73, 0x6D, 0x63, 0x76, 0x63, 0x30, 0x32
-	};
-
-	//修改返回的数据
-	memcpy(lpBuffers->buf, data, sizeof(data));
-
-	CString strText;
-	CString strTemp;
-	for (unsigned int i = 0; i < dwBufferCount; ++i) {
-		strText.Empty();
-		for (unsigned int j = 0; j < lpBuffers->len; ++j) {
-			strTemp.Format(_T("%02X"), lpBuffers->buf[j]);
-			strText += strTemp;
-		}
-
-		strTemp.Format(_T("第%d行：%s\n"), i, strText);
-		TRACE(strTemp);
-	}
-
-
-	//这里不再hook
-	//theApp.Hook2.Change();
-	return Result;
-	}
-
-
-BOOL __stdcall newCreateProcess(
-	LPCTSTR lpApplicationName,
-	LPTSTR lpCommandLine,
-	LPSECURITY_ATTRIBUTES lpProcessAttributes,
-	LPSECURITY_ATTRIBUTES lpThreadAttributes,
-	BOOL bInheritHandles,
-	DWORD dwCreationFlags,
-	LPVOID lpEnvironment,
-	LPCTSTR lpCurrentDirectory,
-	LPSTARTUPINFO lpStartupInfo,
-	LPPROCESS_INFORMATION lpProcessInformation
-) {
-	int Result;
-	typedef  int(__stdcall*TCreateProcess)(
-		LPCTSTR lpApplicationName,
-		LPTSTR lpCommandLine,
-		LPSECURITY_ATTRIBUTES lpProcessAttributes,
-		LPSECURITY_ATTRIBUTES lpThreadAttributes,
-		BOOL bInheritHandles,
-		DWORD dwCreationFlags,
-		LPVOID lpEnvironment,
-		LPCTSTR lpCurrentDirectory,
-		LPSTARTUPINFO lpStartupInfo,
-		LPPROCESS_INFORMATION lpProcessInformation
-		);
-#ifndef _WIN64
-	__asm
-	{
-		pushad
-	}
-	MessageBox(NULL, lpCommandLine, lpApplicationName, MB_OK);
-	theApp.m_hkCreateProcess.Restore();
-	__asm
-	{
-		popad
-	}
-#endif // !_WIN64
-	Result = TCreateProcess(theApp.m_hkCreateProcess.OldFunction)(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
-		bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
-
-	theApp.m_hkCreateProcess.Change();
-	return Result;
-	}
 
 
 // CHookDllApp construction
@@ -262,33 +124,17 @@ BOOL CHookDllApp::InitInstance() {
 		}
 #endif
 
-		// 加载Lua库：star
-		CString strLuaDllFilePath = m_strThisDir + STAR_LUA_LIB_NAME + ".dll";
-		if (GetFileAttributes(strLuaDllFilePath) != -1) {
-			HMODULE hModule = ::LoadLibrary(strLuaDllFilePath);
-			if (hModule == NULL) {
-				AfxMessageBox("star.dll load failed");
-			} else {
-				CString strFunctionName = CString("luaopen_") + STAR_LUA_LIB_NAME;
-				luaopen_star = (Tluaopen_customlib)GetProcAddress(hModule, strFunctionName);
-				if (luaopen_star == NULL) {
-					AfxMessageBox(strFunctionName + " not found");
-				}
-			}
-		} else {
-			AfxMessageBox("star.dll not found");
-		}
-
-		// 弹框
-		m_pdlgMain = new CMainDlg;
-		m_pdlgMain->Create(CMainDlg::IDD, AfxGetMainWnd());
-		m_pdlgMain->ShowWindow(SW_SHOW);
-		}
+		CString mConfigFilePath = m_strThisDir + _T("hookloader.ini");
+		BOOL isLoadLuaStar = GetPrivateProfileInt(_T("dll"), _T("lua"), TRUE, mConfigFilePath);
+		BOOL isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), TRUE, mConfigFilePath);
+		loadDll();
+		if (isLoadLuaStar) { loadLuaStarDll(); }
+		if (isShowDlg) { showDlg(); }
+	}
 	//////////////////////////////////////////////////////////////////////////
 
 	return TRUE;
 	}
-
 
 int CHookDllApp::ExitInstance() {
 	if (m_pdlgMain) {
@@ -297,4 +143,82 @@ int CHookDllApp::ExitInstance() {
 	}
 
 	return CWinApp::ExitInstance();
+}
+
+void CHookDllApp::showDlg() {
+	m_pdlgMain = new CMainDlg;
+	m_pdlgMain->Create(CMainDlg::IDD, AfxGetMainWnd());
+	m_pdlgMain->ShowWindow(SW_SHOW);
+}
+
+void CHookDllApp::loadLuaStarDll() {
+	CString strDllFileName = STAR_LUA_LIB_NAME;
+	CString strLuaDllFilePath = m_strThisDir + STAR_LUA_LIB_NAME;
+	if (GetFileAttributes(strLuaDllFilePath) != -1) {
+		HMODULE hModule = ::LoadLibrary(strLuaDllFilePath);
+		if (hModule == NULL) {
+			AfxMessageBox(strDllFileName + " load failed");
+		} else {
+			CString strFunctionName = "luaopen_star";
+			luaopen_star = (Tluaopen_customlib)GetProcAddress(hModule, strFunctionName);
+			if (luaopen_star == NULL) {
+				AfxMessageBox(strFunctionName + " not found");
+			}
+		}
+	} else {
+		AfxMessageBox(strDllFileName + " not found");
+	}
+}
+
+void CHookDllApp::loadDll() {
+	TCHAR szDllName[MAX_PATH * 2] = { 0 };
+	TCHAR szProcName[MAX_PATH * 2] = { 0 };
+	CString strDllName;
+	CStringA strProcName;
+	CString mConfigFilePath = m_strThisDir + _T("hookloader.ini");
+	// 加载配置的dll
+	CString strSection;
+	CString strKeyName;
+#ifdef _WIN64
+	strKeyName = _T("name64");
+#else
+	strKeyName = _T("name32");
+#endif // _WIN64
+
+	int nDllCount = GetPrivateProfileInt(_T("dll"), _T("count"), 1, mConfigFilePath);
+	for (auto i = 0; i < nDllCount; i++) {
+		strSection.Format(_T("%d"), i + 1);
+		::GetPrivateProfileString(strSection, strKeyName, NULL, szDllName, sizeof(szDllName), mConfigFilePath);
+		::GetPrivateProfileString(strSection, _T("proc"), NULL, szProcName, sizeof(szProcName), mConfigFilePath);
+		strDllName = szDllName;
+		strProcName = szDllName;
+		if (!strDllName.IsEmpty() && strDllName.Find(':') == -1) {
+			// 相对路径
+			strDllName = m_strThisDir + strDllName;
+			if (strDllName.Find('.') == -1) {
+				strDllName += _T(".dll");
+			}
+		}
+
+		if (!strDllName.IsEmpty()) {
+			if (GetFileAttributes(strDllName) != -1) {
+				HMODULE hModule = ::LoadLibrary(strDllName);
+				if (hModule == NULL) {
+					AfxMessageBox(strDllName + " load failed");
+				} else if (!strProcName.IsEmpty()) {
+					typedef int(__stdcall*funcProc)();
+					funcProc proc = (funcProc)GetProcAddress(hModule, strProcName);
+					if (proc == NULL) {
+						AfxMessageBox(strProcName + " not found");
+					} else {
+						proc();
+					}
+				}
+			} else {
+				AfxMessageBox(strDllName + " not found");
+			}
+		}
+
+	}
+
 }
