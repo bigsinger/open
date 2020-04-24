@@ -191,7 +191,7 @@ void CHookDllApp::loadDll() {
 		::GetPrivateProfileString(strSection, strKeyName, NULL, szDllName, sizeof(szDllName), mConfigFilePath);
 		::GetPrivateProfileString(strSection, _T("proc"), NULL, szProcName, sizeof(szProcName), mConfigFilePath);
 		strDllName = szDllName;
-		strProcName = szDllName;
+		strProcName = szProcName;
 		if (!strDllName.IsEmpty() && strDllName.Find(':') == -1) {
 			// Ïà¶ÔÂ·¾¶
 			strDllName = m_strThisDir + strDllName;
