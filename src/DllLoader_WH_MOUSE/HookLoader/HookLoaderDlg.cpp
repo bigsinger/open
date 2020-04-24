@@ -15,6 +15,13 @@ using namespace std;
 #endif
 
 
+#ifdef _WIN64
+#define  HookDll_NAME	_T("HookDll_x64.dll")
+#else
+#define  HookDll_NAME	_T("HookDll_Win32.dll")
+#endif // _WIN64
+
+
 // CHookLoadDlg 对话框
 CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CHookLoadDlg::IDD, pParent) {
@@ -27,7 +34,7 @@ CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 	m_strStartPath = szBuff;
 	m_strConfigFile = m_strStartPath + _T("config.ini");
 
-	HMODULE hModule = LoadLibrary(m_strStartPath + _T("HookDll.dll"));
+	HMODULE hModule = LoadLibrary(m_strStartPath + HookDll_NAME);
 	if (hModule) {
 		StartHook = (TStartHook)GetProcAddress(hModule, "StartHook");
 		StopHook = (TStopHook)GetProcAddress(hModule, "StopHook");
@@ -113,16 +120,6 @@ BOOL IsWow64Process(HANDLE hProcess) {
 	return bIsWow64;
 }
 
-BOOL IsWow64Process(DWORD dwPid) {
-	HANDLE hProcess = NULL;
-	BOOL bRet = FALSE;
-
-	if ((hProcess = GetProcessHandle(dwPid, FALSE)) == NULL)
-		return 0;
-	bRet = IsWow64Process(hProcess);
-	CloseHandle(hProcess);
-	return bRet;
-}
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -169,7 +166,7 @@ int getPIdFromName(LPCTSTR szProcessName, vector<DWORD>&vtpids, int nLimit) {
 		_tcslwr_s(ProcessEntry32.szExeFile);
 		if (_tcsstr(ProcessEntry32.szExeFile, strProcessName.c_str())) {
 			vtpids.push_back(ProcessEntry32.th32ProcessID);
-			if (vtpids.size() >= nLimit) {
+			if ((int)vtpids.size() >= nLimit) {
 				break;
 			}
 		}
@@ -311,11 +308,6 @@ void CHookLoadDlg::OnBnClickedButtonHook() {
 	} else {
 		// 通过进程名找
 		dwProcessId = getPIdFromName(m_strProcessName);
-	}
-
-	if (IsWow64Process(dwProcessId)){
-		AfxMessageBox("Only support x64 App!");
-		return;
 	}
 
 	m_dwThreadId = GetThreadIdFromPID(dwProcessId);
