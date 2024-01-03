@@ -23,6 +23,13 @@ using namespace std;
 #endif // _WIN64
 
 
+// 热键ID
+const int HOTKEY_EVENT_ID_HOOK = 1001;
+const int HOTKEY_EVENT_ID_UNHOOK = 1002;
+const int HOTKEY_EVENT_ID_HIDE = 1003;
+
+
+
 // CHookLoadDlg 对话框
 CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CHookLoadDlg::IDD, pParent) {
@@ -93,10 +100,10 @@ BOOL CHookLoadDlg::OnInitDialog() {
 
 	// 注册热键
 	UINT uHotKey = MAKELONG('H', HOTKEYF_ALT);
-	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), 1001);
+	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), HOTKEY_EVENT_ID_HOOK);
 	
 	uHotKey = MAKELONG('U', HOTKEYF_ALT);
-	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), 1002);
+	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), HOTKEY_EVENT_ID_UNHOOK);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -248,9 +255,9 @@ BOOL CHookLoadDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHo
 
 //热键消息响应函数
 LRESULT CHookLoadDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
-	if (wParam == 1001) {
+	if (wParam == HOTKEY_EVENT_ID_HOOK) {
 		Hook();
-	} else if (wParam == 1002) {
+	} else if (wParam == HOTKEY_EVENT_ID_UNHOOK) {
 		UnHook();
 	}
 	return 0;
