@@ -41,7 +41,10 @@ HHOOK		hhk = NULL;
 HANDLE		hMapFile;
 int			nSize;
 //////////////////////////////////////////////////////////////////////////
-UINT		nTimerId;
+// 注入DLL的相关配置
+// 是否自动释放
+BOOL 	g_isAutoFree = FALSE;
+//////////////////////////////////////////////////////////////////////////
 
 
 // CHookDllApp
@@ -68,7 +71,26 @@ __declspec(dllexport) void __stdcall StopHook() {
 	}
 }
 //////////////////////////////////////////////////////////////////////////
+// 释放注入的三方DLL
+void free3rdDll() {
+	if (g_isAutoFree) {
+		for (auto it = g_3rdDllList.begin(); it != g_3rdDllList.end(); it++) {
+			::FreeLibrary(*it);
+		}
+		g_3rdDllList.clear();
+	}
+}
 
+// 播放成功的声音
+void playSoundSuccess() {
+	::Beep(523, 400);	// do
+}
+
+
+// 播放失败的声音
+void playSoundFailed() {
+	::Beep(659, 400);	// mi
+}
 
 // CHookDllApp construction
 
@@ -81,6 +103,7 @@ CHookDllApp::CHookDllApp() {
 // The one and only CHookDllApp object
 
 CHookDllApp theApp;
+std::list<HMODULE>g_3rdDllList;	// 加载的三方DLL列表
 Tluaopen_customlib luaopen_star = NULL;
 
 // CHookDllApp initialization
@@ -127,9 +150,15 @@ BOOL CHookDllApp::InitInstance() {
 		CString mConfigFilePath = m_strThisDir + _T("hookloader.ini");
 		BOOL isLoadLuaStar = GetPrivateProfileInt(_T("dll"), _T("lua"), TRUE, mConfigFilePath);
 		BOOL isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), TRUE, mConfigFilePath);
-		loadDll();
+		g_isAutoFree = GetPrivateProfileInt(_T("dll"), _T("autofree"), FALSE, mConfigFilePath);
+
+		loadDll();	// 加载配置的三方DLL
+
 		if (isLoadLuaStar) { loadLuaStarDll(); }
 		if (isShowDlg) { showDlg(); }
+
+		// 播放成功的声音
+		playSoundSuccess();
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -142,6 +171,9 @@ int CHookDllApp::ExitInstance() {
 		m_pdlgMain = NULL;
 	}
 
+	// 释放注入的三方DLL
+	free3rdDll();
+	playSoundSuccess();
 	return CWinApp::ExitInstance();
 }
 
@@ -195,9 +227,7 @@ void CHookDllApp::loadDll() {
 		if (!strDllName.IsEmpty() && strDllName.Find(':') == -1) {
 			// 相对路径
 			strDllName = m_strThisDir + strDllName;
-			if (strDllName.Find('.') == -1) {
-				strDllName += _T(".dll");
-			}
+			if (strDllName.Find('.') == -1) { strDllName += _T(".dll"); }
 		}
 
 		if (!strDllName.IsEmpty()) {
@@ -205,13 +235,17 @@ void CHookDllApp::loadDll() {
 				HMODULE hModule = ::LoadLibrary(strDllName);
 				if (hModule == NULL) {
 					AfxMessageBox(strDllName + " load failed");
-				} else if (!strProcName.IsEmpty()) {
-					typedef int(__stdcall*funcProc)();
-					funcProc proc = (funcProc)GetProcAddress(hModule, strProcName);
-					if (proc == NULL) {
-						AfxMessageBox(strProcName + " not found");
-					} else {
-						proc();
+				} else {
+					g_3rdDllList.push_back(hModule);
+
+					// 如果有配置导出函数则调用
+					if (!strProcName.IsEmpty()) {
+						funcProc proc = (funcProc)GetProcAddress(hModule, strProcName);
+						if (proc == NULL) {
+							AfxMessageBox(strProcName + " not found");
+						} else {
+							proc();
+						}
 					}
 				}
 			} else {

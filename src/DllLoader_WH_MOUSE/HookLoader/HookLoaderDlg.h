@@ -27,6 +27,9 @@ private:
 	TStopHook	StopHook = NULL;
 private:
 	void HiliTheWindow(CPoint point);
+	BOOL RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId);	//注册热键
+	void Hook();
+	void UnHook();
 
 	// 构造
 public:
@@ -48,7 +51,9 @@ protected:
 	virtual void OnCancel();
 	DECLARE_MESSAGE_MAP()
 public:
+	afx_msg LRESULT OnHotKey(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedButtonHook();
+	afx_msg void OnBnClickedButtonUnhook();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
@@ -60,5 +65,4 @@ public:
 	// 进程名
 	CString m_strProcessName;
 	CString m_strLastProcessName;
-	afx_msg void OnBnClickedButtonUnhook();
 };

@@ -6,6 +6,7 @@
 #include "HookLoaderDlg.h"
 #include "Tlhelp32.h"
 #include <Shlwapi.h>
+#include <string>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -58,6 +59,7 @@ void CHookLoadDlg::DoDataExchange(CDataExchange* pDX) {
 }
 
 BEGIN_MESSAGE_MAP(CHookLoadDlg, CDialog)
+	ON_MESSAGE(WM_HOTKEY, OnHotKey)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
@@ -73,7 +75,7 @@ BOOL CHookLoadDlg::OnInitDialog() {
 
 	// 设置此对话框的图标。当应用程序主窗口不是对话框时，框架将自动
 	//  执行此操作
-	SetIcon(m_hIcon, TRUE);			// 设置大图标
+	SetIcon(m_hIcon, TRUE);		// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	/************************************************************************/
@@ -88,6 +90,13 @@ BOOL CHookLoadDlg::OnInitDialog() {
 	m_strProcessName = szBuff;
 	m_strLastProcessName = m_strProcessName;
 	UpdateData(FALSE);
+
+	// 注册热键
+	UINT uHotKey = MAKELONG('H', HOTKEYF_ALT);
+	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), 1001);
+	
+	uHotKey = MAKELONG('U', HOTKEYF_ALT);
+	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), 1002);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -216,6 +225,37 @@ CString getProcessName(DWORD dwProcessId) {
 	return strName;
 }
 
+//注册热键
+BOOL CHookLoadDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId) {
+	BOOL bSuccess = TRUE;
+
+	if ((wModifiers & HOTKEYF_ALT) && !(wModifiers & HOTKEYF_SHIFT)) {
+		//Shift->ALt
+		wModifiers &= ~HOTKEYF_ALT;
+		wModifiers |= MOD_ALT;
+	} else if (!(wModifiers & HOTKEYF_ALT) && (wModifiers & HOTKEYF_SHIFT)) {
+		//Alt->Shift
+		wModifiers &= ~HOTKEYF_SHIFT;
+		wModifiers |= MOD_SHIFT;
+	}
+	if (::RegisterHotKey(m_hWnd, nHotId, wModifiers, wVirtualKeyCode) == FALSE) {
+		bSuccess = FALSE;
+		AfxMessageBox("热键冲突，请检查是否有其它程序注册了此热键!");
+	}
+
+	return bSuccess;
+}
+
+//热键消息响应函数
+LRESULT CHookLoadDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
+	if (wParam == 1001) {
+		Hook();
+	} else if (wParam == 1002) {
+		UnHook();
+	}
+	return 0;
+}
+
 void CHookLoadDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 	if (m_rcFinder.PtInRect(point)) {
 		m_bMouseDown = TRUE;
@@ -295,6 +335,23 @@ void CHookLoadDlg::HiliTheWindow(CPoint point) {
 }
 
 void CHookLoadDlg::OnBnClickedButtonHook() {
+	Hook();
+}
+
+void CHookLoadDlg::OnBnClickedButtonUnhook() {
+	UnHook();
+}
+
+void CHookLoadDlg::OnOK() {
+	if (StopHook) { StopHook(); }
+	__super::OnOK();
+}
+void CHookLoadDlg::OnCancel() {
+	if (StopHook) { StopHook(); }
+	__super::OnCancel();
+}
+
+void CHookLoadDlg::Hook() {
 	DWORD dwProcessId = 0;
 
 	UpdateData();
@@ -321,15 +378,6 @@ void CHookLoadDlg::OnBnClickedButtonHook() {
 	TRACE0("开始HOOK……\n");
 }
 
-void CHookLoadDlg::OnBnClickedButtonUnhook() {
+void CHookLoadDlg::UnHook() 	{
 	if (StopHook) { StopHook(); }
-}
-
-void CHookLoadDlg::OnOK() {
-	if (StopHook) { StopHook(); }
-	__super::OnOK();
-}
-void CHookLoadDlg::OnCancel() {
-	if (StopHook) { StopHook(); }
-	__super::OnCancel();
 }
