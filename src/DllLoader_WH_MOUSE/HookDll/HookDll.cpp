@@ -60,6 +60,8 @@ LRESULT MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 __declspec(dllexport) void __stdcall StartHook(HANDLE hMainWnd, DWORD dwThreadId) {
+	// 为了防止重复HOOK，先停止HOOK。特殊情况：之前HOOK成功过，但是宿主进程退出了，这时候需要先停止HOOK再重新HOOK
+	StopHook();
 	if (hhk == NULL) {
 		hhk = SetWindowsHookEx(WH_MOUSE, (HOOKPROC)MouseProc, AfxGetInstanceHandle(), dwThreadId);
 	}
@@ -83,13 +85,17 @@ void free3rdDll() {
 
 // 播放成功的声音
 void playSoundSuccess() {
+#if _DEBUG	
 	::Beep(523, 400);	// do
+#endif
 }
 
 
 // 播放失败的声音
 void playSoundFailed() {
+#if _DEBUG	
 	::Beep(659, 400);	// mi
+#endif
 }
 
 // CHookDllApp construction
@@ -121,7 +127,7 @@ BOOL CHookDllApp::InitInstance() {
 	StrRChr(szBuff, NULL, '\\')[1] = 0;
 	m_strHostDir = szBuff;
 
-	if (m_strHostDir.CompareNoCase(m_strThisDir) != 0) {
+	if (!isInMyselfSpace()) {
 		TRACE0("成功注入到目标进程!\n");
 
 #if 0
@@ -174,6 +180,7 @@ int CHookDllApp::ExitInstance() {
 	// 释放注入的三方DLL
 	free3rdDll();
 	playSoundSuccess();
+
 	return CWinApp::ExitInstance();
 }
 
@@ -254,5 +261,9 @@ void CHookDllApp::loadDll() {
 		}
 
 	}
+}
 
+// 是否在当前自己工具的空间
+bool CHookDllApp::isInMyselfSpace() {
+	return m_strHostDir.CompareNoCase(m_strThisDir) == 0;
 }

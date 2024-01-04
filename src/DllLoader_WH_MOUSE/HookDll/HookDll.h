@@ -72,6 +72,9 @@ private:
 	void loadDll();
 	void showDlg();
 
+	// 是否在当前自己工具的空间
+	bool isInMyselfSpace();
+
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
