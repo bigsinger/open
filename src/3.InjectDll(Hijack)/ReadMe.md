@@ -58,3 +58,20 @@
 6. 编译，生成的 DLL 和  `xyz_old.dll` 都放到目标程序的同级目录下。
 
 7. 运行`dbgview`，运行目标程序，查看日志输出情况。
+
+
+
+**常见容易被劫持的DLL汇总**：
+
+```c
+version
+lpk
+usp10
+msimg32
+midimap
+ksuser
+comRes
+ddraw
+d3d
+```
+
