@@ -5,6 +5,7 @@
 #include "HookDll.h"
 #include <Shlwapi.h>
 #include "Constant.h"
+#include "..\HookLoader\Resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -256,6 +257,17 @@ void CHookDllApp::loadDll() {
 							AfxMessageBox(strProcName + " not found");
 						}
 					}
+
+#pragma region 自动卸载或退出
+					HWND hWndLoader = FindWindow(_T("#32770"), _T("HookLoader"));
+					BOOL isAutoExit = GetPrivateProfileInt(_T("dll"), _T("autoexit"), TRUE, mConfigFilePath);
+					BOOL isAutoUninstall = GetPrivateProfileInt(_T("dll"), _T("autouninstall"), TRUE, mConfigFilePath);
+					if (isAutoExit) {
+						::PostMessage(hWndLoader, WM_COMMAND, IDCANCEL,0);
+					} else if (isAutoUninstall) {
+						::PostMessage(hWndLoader, WM_COMMAND, MAKEWPARAM(IDC_BUTTON_UNHOOK, BN_CLICKED), 0);
+					}
+#pragma endregion
 				} else {
 					AfxMessageBox(strDllName + " load failed");
 				}
