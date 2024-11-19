@@ -15,6 +15,7 @@ public:
 
 
 protected:
+	BOOL RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId);	//注册热键
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnInitDialog();
@@ -25,6 +26,7 @@ protected:
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnBnClickedOk();
+	afx_msg LRESULT OnHotKey(WPARAM wParam, LPARAM lParam);
 
 	// Lua脚本内容
 	CString m_strScriptText;

@@ -70,7 +70,7 @@ public:
 private:
 	void loadLuaStarDll();
 	void loadDll();
-	void showDlg();
+	void showDlg(BOOL isShowDlg);
 
 	// 是否在当前自己工具的空间
 	bool isInMyselfSpace();
@@ -84,4 +84,5 @@ public:
 
 extern CHookDllApp theApp;
 
-extern std::list<HMODULE>g_3rdDllList;	// 加载的三方DLL列表
+extern std::list<HMODULE>g_3rdDllList;		// 加载的三方DLL列表
+extern std::list<funcProc>g_3rdProcList;	// 加载的三方DLL的导出函数列表

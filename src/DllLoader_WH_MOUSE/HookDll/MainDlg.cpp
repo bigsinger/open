@@ -11,6 +11,11 @@
 #pragma comment(lib,"lua53.lib")
 #endif
 
+
+// 热键ID
+const int HOTKEY_EVENT_ID_COMMAND = 1010;
+
+
 // CMainDlg 对话框
 
 IMPLEMENT_DYNAMIC(CMainDlg, CDialog)
@@ -39,8 +44,9 @@ void CMainDlg::DoDataExchange(CDataExchange* pDX) {
 
 
 BEGIN_MESSAGE_MAP(CMainDlg, CDialog)
-	ON_WM_SIZE()
+	ON_MESSAGE(WM_HOTKEY, OnHotKey)
 	ON_BN_CLICKED(IDOK, &CMainDlg::OnBnClickedOk)
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -61,6 +67,10 @@ BOOL CMainDlg::OnInitDialog() {
 	m_anchor.SetParent(this);
 	m_anchor.Fix(IDC_EDIT1, CAnchorCtrl::LeftTopRightBottom);
 	m_anchor.Fix(IDOK, CAnchorCtrl::TopRight);
+
+	// 注册热键
+	UINT uHotKey = MAKELONG('C', HOTKEYF_ALT);
+	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), HOTKEY_EVENT_ID_COMMAND);
 
 	return TRUE;
 }
@@ -89,4 +99,36 @@ void CMainDlg::OnOK() {
 
 void CMainDlg::OnCancel() {
 	AfxMessageBox("请退出注入器");
+}
+
+//注册热键
+BOOL CMainDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId) {
+	BOOL bSuccess = TRUE;
+
+	if ((wModifiers & HOTKEYF_ALT) && !(wModifiers & HOTKEYF_SHIFT)) {
+		//Shift->ALt
+		wModifiers &= ~HOTKEYF_ALT;
+		wModifiers |= MOD_ALT;
+	} else if (!(wModifiers & HOTKEYF_ALT) && (wModifiers & HOTKEYF_SHIFT)) {
+		//Alt->Shift
+		wModifiers &= ~HOTKEYF_SHIFT;
+		wModifiers |= MOD_SHIFT;
+	}
+	if (::RegisterHotKey(m_hWnd, nHotId, wModifiers, wVirtualKeyCode) == FALSE) {
+		bSuccess = FALSE;
+		AfxMessageBox("热键冲突，请检查是否有其它程序注册了此热键!");
+	}
+
+	return bSuccess;
+}
+
+//热键消息响应函数
+LRESULT CMainDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
+	if (wParam == HOTKEY_EVENT_ID_COMMAND) {
+		OutputDebugString("[HookDll]OnHotKey: HOTKEY_EVENT_ID_COMMAND\n");
+		for (auto it = g_3rdProcList.begin(); it != g_3rdProcList.end(); it++) {
+			(*it)();
+		}
+	}
+	return 0;
 }

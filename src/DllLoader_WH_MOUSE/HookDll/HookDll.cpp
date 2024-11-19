@@ -80,6 +80,7 @@ void free3rdDll() {
 			::FreeLibrary(*it);
 		}
 		g_3rdDllList.clear();
+		g_3rdProcList.clear();
 	}
 }
 
@@ -109,7 +110,8 @@ CHookDllApp::CHookDllApp() {
 // The one and only CHookDllApp object
 
 CHookDllApp theApp;
-std::list<HMODULE>g_3rdDllList;	// 加载的三方DLL列表
+std::list<HMODULE>g_3rdDllList;		// 加载的三方DLL列表
+std::list<funcProc>g_3rdProcList;	// 加载的三方DLL的导出函数列表
 Tluaopen_customlib luaopen_star = NULL;
 
 // CHookDllApp initialization
@@ -155,13 +157,14 @@ BOOL CHookDllApp::InitInstance() {
 
 		CString mConfigFilePath = m_strThisDir + _T("hookloader.ini");
 		BOOL isLoadLuaStar = GetPrivateProfileInt(_T("dll"), _T("lua"), TRUE, mConfigFilePath);
-		BOOL isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), TRUE, mConfigFilePath);
+		BOOL isCreateDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), TRUE, mConfigFilePath);
+		BOOL isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlgshow"), TRUE, mConfigFilePath);
 		g_isAutoFree = GetPrivateProfileInt(_T("dll"), _T("autofree"), FALSE, mConfigFilePath);
 
 		loadDll();	// 加载配置的三方DLL
 
 		if (isLoadLuaStar) { loadLuaStarDll(); }
-		if (isShowDlg) { showDlg(); }
+		if (isCreateDlg) { showDlg(isShowDlg); }
 
 		// 播放成功的声音
 		playSoundSuccess();
@@ -169,7 +172,7 @@ BOOL CHookDllApp::InitInstance() {
 	//////////////////////////////////////////////////////////////////////////
 
 	return TRUE;
-	}
+}
 
 int CHookDllApp::ExitInstance() {
 	if (m_pdlgMain) {
@@ -184,10 +187,10 @@ int CHookDllApp::ExitInstance() {
 	return CWinApp::ExitInstance();
 }
 
-void CHookDllApp::showDlg() {
+void CHookDllApp::showDlg(BOOL isShowDlg) {
 	m_pdlgMain = new CMainDlg;
 	m_pdlgMain->Create(CMainDlg::IDD, AfxGetMainWnd());
-	m_pdlgMain->ShowWindow(SW_SHOW);
+	m_pdlgMain->ShowWindow(isShowDlg ? SW_SHOW : SW_HIDE);
 }
 
 void CHookDllApp::loadLuaStarDll() {
@@ -240,20 +243,21 @@ void CHookDllApp::loadDll() {
 		if (!strDllName.IsEmpty()) {
 			if (GetFileAttributes(strDllName) != -1) {
 				HMODULE hModule = ::LoadLibrary(strDllName);
-				if (hModule == NULL) {
-					AfxMessageBox(strDllName + " load failed");
-				} else {
+				if (hModule ) {
 					g_3rdDllList.push_back(hModule);
 
 					// 如果有配置导出函数则调用
 					if (!strProcName.IsEmpty()) {
 						funcProc proc = (funcProc)GetProcAddress(hModule, strProcName);
-						if (proc == NULL) {
-							AfxMessageBox(strProcName + " not found");
-						} else {
+						if (proc) {
 							proc();
+							g_3rdProcList.push_back(proc);
+						} else {
+							AfxMessageBox(strProcName + " not found");
 						}
 					}
+				} else {
+					AfxMessageBox(strDllName + " load failed");
 				}
 			} else {
 				AfxMessageBox(strDllName + " not found");
