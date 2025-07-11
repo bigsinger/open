@@ -21,9 +21,9 @@ extern "C"
 
 
 //////////////////////////////////////////////////////////////////////////
-//×¢Òâ:Ò»¶¨Òª¼ÓÉÏstdcall
-extern "C" __declspec(dllexport) void __stdcall StartHook(HANDLE hMainWnd, DWORD dwThreadId);
-extern "C" __declspec(dllexport) void __stdcall StopHook();
+//æ³¨æ„:ä¸€å®šè¦åŠ ä¸Šstdcall
+extern "C" __declspec(dllexport) HHOOK __stdcall StartHook(HANDLE hMainWnd, DWORD dwThreadId);
+extern "C" __declspec(dllexport) void __stdcall StopHook(HHOOK hook);
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -36,20 +36,20 @@ extern Tluaopen_customlib luaopen_star;
 
 
 //////////////////////////////////////////////////////////////////////////
-// Èı·½DLLÈç¹ûÓĞµ¼³öº¯ÊıĞèÒªµ÷ÓÃ£¬°´ÕÕÈçÏÂ·½Ê½¶¨Òå
+// ä¸‰æ–¹DLLå¦‚æœæœ‰å¯¼å‡ºå‡½æ•°éœ€è¦è°ƒç”¨ï¼ŒæŒ‰ç…§å¦‚ä¸‹æ–¹å¼å®šä¹‰
 typedef int(__stdcall* funcProc)();
 //////////////////////////////////////////////////////////////////////////
 
 
 
 /////////////////////////////////////////////////////////////////////////////
-// ÊÍ·Å×¢ÈëµÄÈı·½DLL
+// é‡Šæ”¾æ³¨å…¥çš„ä¸‰æ–¹DLL
 void free3rdDll();
 
-// ²¥·Å³É¹¦µÄÉùÒô
+// æ’­æ”¾æˆåŠŸçš„å£°éŸ³
 void playSoundSuccess();
 
-// ²¥·ÅÊ§°ÜµÄÉùÒô
+// æ’­æ”¾å¤±è´¥çš„å£°éŸ³
 void playSoundFailed();
 /////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +72,7 @@ private:
 	void loadDll();
 	void showDlg(BOOL isShowDlg);
 
-	// ÊÇ·ñÔÚµ±Ç°×Ô¼º¹¤¾ßµÄ¿Õ¼ä
+	// æ˜¯å¦åœ¨å½“å‰è‡ªå·±å·¥å…·çš„ç©ºé—´
 	bool isInMyselfSpace();
 
 public:
@@ -84,5 +84,5 @@ public:
 
 extern CHookDllApp theApp;
 
-extern std::list<HMODULE>g_3rdDllList;		// ¼ÓÔØµÄÈı·½DLLÁĞ±í
-extern std::list<funcProc>g_3rdProcList;	// ¼ÓÔØµÄÈı·½DLLµÄµ¼³öº¯ÊıÁĞ±í
+extern std::list<HMODULE>g_3rdDllList;		// åŠ è½½çš„ä¸‰æ–¹DLLåˆ—è¡¨
+extern std::list<funcProc>g_3rdProcList;	// åŠ è½½çš„ä¸‰æ–¹DLLçš„å¯¼å‡ºå‡½æ•°åˆ—è¡¨

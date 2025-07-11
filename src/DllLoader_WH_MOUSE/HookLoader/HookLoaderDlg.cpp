@@ -1,4 +1,4 @@
-// HookTestDlg.cpp : ÊµÏÖÎÄ¼ş
+// HookTestDlg.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -23,14 +23,14 @@ using namespace std;
 #endif // _WIN64
 
 
-// ÈÈ¼üID
+// çƒ­é”®ID
 const int HOTKEY_EVENT_ID_HOOK = 1001;
 const int HOTKEY_EVENT_ID_UNHOOK = 1002;
 const int HOTKEY_EVENT_ID_HIDE = 1003;
+HHOOK m_hook = NULL;
 
 
-
-// CHookLoadDlg ¶Ô»°¿ò
+// CHookLoadDlg å¯¹è¯æ¡†
 CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CHookLoadDlg::IDD, pParent) {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -47,7 +47,7 @@ CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 		StartHook = (TStartHook)GetProcAddress(hModule, "StartHook");
 		StopHook = (TStopHook)GetProcAddress(hModule, "StopHook");
 	} else {
-		AfxMessageBox(_T("¼ÓÔØHook.dllÊ§°Ü"));
+		AfxMessageBox(_T("åŠ è½½Hook.dllå¤±è´¥"));
 	}
 
 	m_bIsDrag = FALSE;
@@ -75,15 +75,15 @@ BEGIN_MESSAGE_MAP(CHookLoadDlg, CDialog)
 END_MESSAGE_MAP()
 
 
-// CHookLoadDlg ÏûÏ¢´¦Àí³ÌĞò
+// CHookLoadDlg æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 BOOL CHookLoadDlg::OnInitDialog() {
 	CDialog::OnInitDialog();
 
-	// ÉèÖÃ´Ë¶Ô»°¿òµÄÍ¼±ê¡£µ±Ó¦ÓÃ³ÌĞòÖ÷´°¿Ú²»ÊÇ¶Ô»°¿òÊ±£¬¿ò¼Ü½«×Ô¶¯
-	//  Ö´ĞĞ´Ë²Ù×÷
-	SetIcon(m_hIcon, TRUE);		// ÉèÖÃ´óÍ¼±ê
-	SetIcon(m_hIcon, FALSE);		// ÉèÖÃĞ¡Í¼±ê
+	// è®¾ç½®æ­¤å¯¹è¯æ¡†çš„å›¾æ ‡ã€‚å½“åº”ç”¨ç¨‹åºä¸»çª—å£ä¸æ˜¯å¯¹è¯æ¡†æ—¶ï¼Œæ¡†æ¶å°†è‡ªåŠ¨
+	//  æ‰§è¡Œæ­¤æ“ä½œ
+	SetIcon(m_hIcon, TRUE);		// è®¾ç½®å¤§å›¾æ ‡
+	SetIcon(m_hIcon, FALSE);		// è®¾ç½®å°å›¾æ ‡
 
 	/************************************************************************/
 	m_hIconOrig = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_ORIG));
@@ -98,14 +98,14 @@ BOOL CHookLoadDlg::OnInitDialog() {
 	m_strLastProcessName = m_strProcessName;
 	UpdateData(FALSE);
 
-	// ×¢²áÈÈ¼ü
+	// æ³¨å†Œçƒ­é”®
 	UINT uHotKey = MAKELONG('H', HOTKEYF_ALT);
 	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), HOTKEY_EVENT_ID_HOOK);
 	
 	uHotKey = MAKELONG('U', HOTKEYF_ALT);
 	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), HOTKEY_EVENT_ID_UNHOOK);
 
-	return TRUE;  // ³ı·Ç½«½¹µãÉèÖÃµ½¿Ø¼ş£¬·ñÔò·µ»Ø TRUE
+	return TRUE;  // é™¤éå°†ç„¦ç‚¹è®¾ç½®åˆ°æ§ä»¶ï¼Œå¦åˆ™è¿”å› TRUE
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ BOOL IsWow64Process(HANDLE hProcess) {
 //////////////////////////////////////////////////////////////////////////
 
 
-//ÓÉ½ø³ÌID»ñÈ¡ÏàÓ¦µÄÖ÷Ïß³ÌID
+//ç”±è¿›ç¨‹IDè·å–ç›¸åº”çš„ä¸»çº¿ç¨‹ID
 DWORD GetThreadIdFromPID(DWORD dwProcessId) {
 	HANDLE ThreadHandle;
 	THREADENTRY32 ThreadStruct;
@@ -158,7 +158,7 @@ DWORD GetThreadIdFromPID(DWORD dwProcessId) {
 	return 0;
 }
 
-// »ñÈ¡½ø³ÌÃûÎªxxµÄpid
+// è·å–è¿›ç¨‹åä¸ºxxçš„pid
 int getPIdFromName(LPCTSTR szProcessName, vector<DWORD>&vtpids, int nLimit) {
 	if (szProcessName == NULL) {
 		return 0;
@@ -194,7 +194,7 @@ int getPIdFromName(LPCTSTR szProcessName, vector<DWORD>&vtpids, int nLimit) {
 	return (int)vtpids.size();
 }
 
-//²éÕÒÒ»¸ö½ø³ÌÃû¶ÔÓ¦µÄpid
+//æŸ¥æ‰¾ä¸€ä¸ªè¿›ç¨‹åå¯¹åº”çš„pid
 DWORD getPIdFromName(const char *szProcessName) {
 	DWORD dwProcessId = 0;
 	vector<DWORD>vtpids;
@@ -232,7 +232,7 @@ CString getProcessName(DWORD dwProcessId) {
 	return strName;
 }
 
-//×¢²áÈÈ¼ü
+//æ³¨å†Œçƒ­é”®
 BOOL CHookLoadDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId) {
 	BOOL bSuccess = TRUE;
 
@@ -247,13 +247,13 @@ BOOL CHookLoadDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHo
 	}
 	if (::RegisterHotKey(m_hWnd, nHotId, wModifiers, wVirtualKeyCode) == FALSE) {
 		bSuccess = FALSE;
-		AfxMessageBox("ÈÈ¼ü³åÍ»£¬Çë¼ì²éÊÇ·ñÓĞÆäËü³ÌĞò×¢²áÁË´ËÈÈ¼ü!");
+		AfxMessageBox("çƒ­é”®å†²çªï¼Œè¯·æ£€æŸ¥æ˜¯å¦æœ‰å…¶å®ƒç¨‹åºæ³¨å†Œäº†æ­¤çƒ­é”®!");
 	}
 
 	return bSuccess;
 }
 
-//ÈÈ¼üÏûÏ¢ÏìÓ¦º¯Êı
+//çƒ­é”®æ¶ˆæ¯å“åº”å‡½æ•°
 LRESULT CHookLoadDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
 	if (wParam == HOTKEY_EVENT_ID_HOOK) {
 		Hook();
@@ -350,11 +350,11 @@ void CHookLoadDlg::OnBnClickedButtonUnhook() {
 }
 
 void CHookLoadDlg::OnOK() {
-	if (StopHook) { StopHook(); }
+	if (StopHook) { StopHook(m_hook); }
 	__super::OnOK();
 }
 void CHookLoadDlg::OnCancel() {
-	if (StopHook) { StopHook(); }
+	if (StopHook) { StopHook(m_hook); }
 	__super::OnCancel();
 }
 
@@ -370,21 +370,21 @@ void CHookLoadDlg::Hook() {
 	if (m_nHandle) {
 		GetWindowThreadProcessId((HWND)((PBYTE)NULL + m_nHandle), &dwProcessId);
 	} else {
-		// Í¨¹ı½ø³ÌÃûÕÒ
+		// é€šè¿‡è¿›ç¨‹åæ‰¾
 		dwProcessId = getPIdFromName(m_strProcessName);
 	}
 
 	m_dwThreadId = GetThreadIdFromPID(dwProcessId);
 
 	if (m_dwThreadId == 0) {
-		AfxMessageBox(_T("Ã»ÓĞÑ¡¶¨Ä¿±ê,½«Ê¹ÓÃÈ«¾ÖHOOK"));
+		AfxMessageBox(_T("æ²¡æœ‰é€‰å®šç›®æ ‡,å°†ä½¿ç”¨å…¨å±€HOOK"));
 		return;
 	}
 
-	StartHook((HWND)((PBYTE)NULL + m_nHandle), m_dwThreadId);
-	TRACE0("¿ªÊ¼HOOK¡­¡­\n");
+	TRACE("å¼€å§‹HOOKâ€¦â€¦");
+	m_hook = StartHook((HWND)((PBYTE)NULL + m_nHandle), m_dwThreadId);
 }
 
 void CHookLoadDlg::UnHook() 	{
-	if (StopHook) { StopHook(); }
+	if (StopHook) { StopHook(m_hook); }
 }

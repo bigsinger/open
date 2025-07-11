@@ -1,13 +1,13 @@
-// HookTestDlg.h : Í·ÎÄ¼ş
+ï»¿// HookTestDlg.h : å¤´æ–‡ä»¶
 //
 
 #pragma once
 #include "afxwin.h"
 
-typedef void(__stdcall*TStartHook)(HANDLE hMainWnd, DWORD dwThreadId);
-typedef void(__stdcall*TStopHook)();
+typedef HHOOK(__stdcall*TStartHook)(HANDLE hMainWnd, DWORD dwThreadId);
+typedef void(__stdcall*TStopHook)(HHOOK hook);
 
-// CHookLoadDlg ¶Ô»°¿ò
+// CHookLoadDlg å¯¹è¯æ¡†
 class CHookLoadDlg : public CDialog {
 private:
 	BOOL	m_bIsDrag;
@@ -27,25 +27,25 @@ private:
 	TStopHook	StopHook = NULL;
 private:
 	void HiliTheWindow(CPoint point);
-	BOOL RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId);	//×¢²áÈÈ¼ü
+	BOOL RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId);	//æ³¨å†Œçƒ­é”®
 	void Hook();
 	void UnHook();
 
-	// ¹¹Ôì
+	// æ„é€ 
 public:
-	CHookLoadDlg(CWnd* pParent = NULL);	// ±ê×¼¹¹Ôìº¯Êı
+	CHookLoadDlg(CWnd* pParent = NULL);	// æ ‡å‡†æ„é€ å‡½æ•°
 
-// ¶Ô»°¿òÊı¾İ
+// å¯¹è¯æ¡†æ•°æ®
 	enum { IDD = IDD_HOOKTEST_DIALOG };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV æ”¯æŒ
 
-// ÊµÏÖ
+// å®ç°
 protected:
 	HICON m_hIcon;
 
-	// Éú³ÉµÄÏûÏ¢Ó³Éäº¯Êı
+	// ç”Ÿæˆçš„æ¶ˆæ¯æ˜ å°„å‡½æ•°
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual void OnCancel();
@@ -62,7 +62,7 @@ public:
 	CString m_szClassName;
 	int m_nHandle = 0;
 
-	// ½ø³ÌÃû
+	// è¿›ç¨‹å
 	CString m_strProcessName;
 	CString m_strLastProcessName;
 };

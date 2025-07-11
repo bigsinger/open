@@ -1,4 +1,4 @@
-// HookDll.cpp : Defines the initialization routines for the DLL.
+ï»¿// HookDll.cpp : Defines the initialization routines for the DLL.
 //
 
 #include "stdafx.h"
@@ -42,8 +42,8 @@ HHOOK		hhk = NULL;
 HANDLE		hMapFile;
 int			nSize;
 //////////////////////////////////////////////////////////////////////////
-// ×¢ÈëDLLµÄÏà¹ØÅäÖÃ
-// ÊÇ·ñ×Ô¶¯ÊÍ·Å
+// æ³¨å…¥DLLçš„ç›¸å…³é…ç½®
+// æ˜¯å¦è‡ªåŠ¨é‡Šæ”¾
 BOOL 	g_isAutoFree = FALSE;
 //////////////////////////////////////////////////////////////////////////
 
@@ -60,32 +60,35 @@ LRESULT MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 	return CallNextHookEx(hhk, nCode, wParam, lParam);
 }
 
-__declspec(dllexport) void __stdcall StartHook(HANDLE hMainWnd, DWORD dwThreadId) {
-	// ÎªÁË·ÀÖ¹ÖØ¸´HOOK£¬ÏÈÍ£Ö¹HOOK¡£ÌØÊâÇé¿ö£ºÖ®Ç°HOOK³É¹¦¹ı£¬µ«ÊÇËŞÖ÷½ø³ÌÍË³öÁË£¬ÕâÊ±ºòĞèÒªÏÈÍ£Ö¹HOOKÔÙÖØĞÂHOOK
-	StopHook();
+__declspec(dllexport) HHOOK __stdcall StartHook(HANDLE hMainWnd, DWORD dwThreadId) {
+	// ä¸ºäº†é˜²æ­¢é‡å¤HOOKï¼Œå…ˆåœæ­¢HOOKã€‚ç‰¹æ®Šæƒ…å†µï¼šä¹‹å‰HOOKæˆåŠŸè¿‡ï¼Œä½†æ˜¯å®¿ä¸»è¿›ç¨‹é€€å‡ºäº†ï¼Œè¿™æ—¶å€™éœ€è¦å…ˆåœæ­¢HOOKå†é‡æ–°HOOK
 	if (hhk == NULL) {
 		hhk = SetWindowsHookEx(WH_MOUSE, (HOOKPROC)MouseProc, AfxGetInstanceHandle(), dwThreadId);
+		TRACE("StartHook hookï¼š%p", hhk);
 	}
+	return hhk;
 }
-__declspec(dllexport) void __stdcall StopHook() {
-	if (hhk) {
-		UnhookWindowsHookEx(hhk);
+__declspec(dllexport) void __stdcall StopHook(HHOOK hook) {
+	TRACE("StopHook hookï¼š%p", hook);
+	if (hook) {
+		UnhookWindowsHookEx(hook);
 		hhk = NULL;
 	}
 }
 //////////////////////////////////////////////////////////////////////////
-// ÊÍ·Å×¢ÈëµÄÈı·½DLL
+// é‡Šæ”¾æ³¨å…¥çš„ä¸‰æ–¹DLL
 void free3rdDll() {
 	if (g_isAutoFree) {
 		for (auto it = g_3rdDllList.begin(); it != g_3rdDllList.end(); it++) {
-			::FreeLibrary(*it);
+			BOOL ret = ::FreeLibrary(*it);
+			TRACE("FreeLibrary: %p ret: %d last error: %d", *it, ret, GetLastError());
 		}
 		g_3rdDllList.clear();
 		g_3rdProcList.clear();
 	}
 }
 
-// ²¥·Å³É¹¦µÄÉùÒô
+// æ’­æ”¾æˆåŠŸçš„å£°éŸ³
 void playSoundSuccess() {
 #if _DEBUG	
 	::Beep(523, 400);	// do
@@ -93,7 +96,7 @@ void playSoundSuccess() {
 }
 
 
-// ²¥·ÅÊ§°ÜµÄÉùÒô
+// æ’­æ”¾å¤±è´¥çš„å£°éŸ³
 void playSoundFailed() {
 #if _DEBUG	
 	::Beep(659, 400);	// mi
@@ -111,11 +114,10 @@ CHookDllApp::CHookDllApp() {
 // The one and only CHookDllApp object
 
 CHookDllApp theApp;
-std::list<HMODULE>g_3rdDllList;		// ¼ÓÔØµÄÈı·½DLLÁĞ±í
-std::list<funcProc>g_3rdProcList;	// ¼ÓÔØµÄÈı·½DLLµÄµ¼³öº¯ÊıÁĞ±í
+std::list<HMODULE>g_3rdDllList;		// åŠ è½½çš„ä¸‰æ–¹DLLåˆ—è¡¨
+std::list<funcProc>g_3rdProcList;	// åŠ è½½çš„ä¸‰æ–¹DLLçš„å¯¼å‡ºå‡½æ•°åˆ—è¡¨
 Tluaopen_customlib luaopen_star = NULL;
 
-// CHookDllApp initialization
 
 BOOL CHookDllApp::InitInstance() {
 	CWinApp::InitInstance();
@@ -131,10 +133,10 @@ BOOL CHookDllApp::InitInstance() {
 	m_strHostDir = szBuff;
 
 	if (!isInMyselfSpace()) {
-		TRACE0("³É¹¦×¢Èëµ½Ä¿±ê½ø³Ì!\n");
+		TRACE("æˆåŠŸæ³¨å…¥åˆ°ç›®æ ‡è¿›ç¨‹!");
 
 #if 0
-		// ¿ÉÒÔ×öÒ»Ğ©HOOK
+		// å¯ä»¥åšä¸€äº›HOOK
 		Hook.Create(recv, NewRecv);
 		Hook.Change();
 		Hook2.Create(WSARecv, NewWSARecv);
@@ -144,7 +146,7 @@ BOOL CHookDllApp::InitInstance() {
 #endif
 
 #if 0
-		// ¼ÓÔØLuaµÄ¿â
+		// åŠ è½½Luaçš„åº“
 		CString strLuaDllFilePath = m_strThisDir + "lua.dll";
 		if (GetFileAttributes(strLuaDllFilePath) != -1) {
 			HMODULE hModule = ::LoadLibrary(strLuaDllFilePath);
@@ -156,18 +158,23 @@ BOOL CHookDllApp::InitInstance() {
 		}
 #endif
 
+		BOOL isLoadLuaStar = FALSE;
+		BOOL isCreateDlg = FALSE;
+		BOOL isShowDlg = FALSE;
 		CString mConfigFilePath = m_strThisDir + _T("hookloader.ini");
-		BOOL isLoadLuaStar = GetPrivateProfileInt(_T("dll"), _T("lua"), TRUE, mConfigFilePath);
-		BOOL isCreateDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), TRUE, mConfigFilePath);
-		BOOL isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlgshow"), TRUE, mConfigFilePath);
-		g_isAutoFree = GetPrivateProfileInt(_T("dll"), _T("autofree"), FALSE, mConfigFilePath);
+		if (GetFileAttributes(mConfigFilePath) != -1) {
+			isLoadLuaStar = GetPrivateProfileInt(_T("dll"), _T("lua"), FALSE, mConfigFilePath);
+			isCreateDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), FALSE, mConfigFilePath);
+			isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlgshow"), FALSE, mConfigFilePath);
+			g_isAutoFree = GetPrivateProfileInt(_T("dll"), _T("autofree"), FALSE, mConfigFilePath);
+		}
 
-		loadDll();	// ¼ÓÔØÅäÖÃµÄÈı·½DLL
+		loadDll();	// åŠ è½½é…ç½®çš„ä¸‰æ–¹DLL
 
 		if (isLoadLuaStar) { loadLuaStarDll(); }
 		if (isCreateDlg) { showDlg(isShowDlg); }
 
-		// ²¥·Å³É¹¦µÄÉùÒô
+		// æ’­æ”¾æˆåŠŸçš„å£°éŸ³
 		playSoundSuccess();
 	}
 	//////////////////////////////////////////////////////////////////////////
@@ -176,12 +183,14 @@ BOOL CHookDllApp::InitInstance() {
 }
 
 int CHookDllApp::ExitInstance() {
+	StopHook(hhk);
+
 	if (m_pdlgMain) {
 		delete m_pdlgMain;
 		m_pdlgMain = NULL;
 	}
 
-	// ÊÍ·Å×¢ÈëµÄÈı·½DLL
+	// é‡Šæ”¾æ³¨å…¥çš„ä¸‰æ–¹DLL
 	free3rdDll();
 	playSoundSuccess();
 
@@ -219,7 +228,7 @@ void CHookDllApp::loadDll() {
 	CString strDllName;
 	CStringA strProcName;
 	CString mConfigFilePath = m_strThisDir + _T("hookloader.ini");
-	// ¼ÓÔØÅäÖÃµÄdll
+	// åŠ è½½é…ç½®çš„dll
 	CString strSection;
 	CString strKeyName;
 #ifdef _WIN64
@@ -228,7 +237,7 @@ void CHookDllApp::loadDll() {
 	strKeyName = _T("name32");
 #endif // _WIN64
 
-	int nDllCount = GetPrivateProfileInt(_T("dll"), _T("count"), 1, mConfigFilePath);
+	int nDllCount = GetPrivateProfileInt(_T("dll"), _T("count"), 0, mConfigFilePath);
 	for (auto i = 0; i < nDllCount; i++) {
 		strSection.Format(_T("%d"), i + 1);
 		::GetPrivateProfileString(strSection, strKeyName, NULL, szDllName, sizeof(szDllName), mConfigFilePath);
@@ -236,7 +245,7 @@ void CHookDllApp::loadDll() {
 		strDllName = szDllName;
 		strProcName = szProcName;
 		if (!strDllName.IsEmpty() && strDllName.Find(':') == -1) {
-			// Ïà¶ÔÂ·¾¶
+			// ç›¸å¯¹è·¯å¾„
 			strDllName = m_strThisDir + strDllName;
 			if (strDllName.Find('.') == -1) { strDllName += _T(".dll"); }
 		}
@@ -247,7 +256,7 @@ void CHookDllApp::loadDll() {
 				if (hModule ) {
 					g_3rdDllList.push_back(hModule);
 
-					// Èç¹ûÓĞÅäÖÃµ¼³öº¯ÊıÔòµ÷ÓÃ
+					// å¦‚æœæœ‰é…ç½®å¯¼å‡ºå‡½æ•°åˆ™è°ƒç”¨
 					if (!strProcName.IsEmpty()) {
 						funcProc proc = (funcProc)GetProcAddress(hModule, strProcName);
 						if (proc) {
@@ -258,7 +267,7 @@ void CHookDllApp::loadDll() {
 						}
 					}
 
-#pragma region ×Ô¶¯Ğ¶ÔØ»òÍË³ö
+#pragma region è‡ªåŠ¨å¸è½½æˆ–é€€å‡º
 					HWND hWndLoader = FindWindow(_T("#32770"), _T("HookLoader"));
 					BOOL isAutoExit = GetPrivateProfileInt(_T("dll"), _T("autoexit"), TRUE, mConfigFilePath);
 					BOOL isAutoUninstall = GetPrivateProfileInt(_T("dll"), _T("autouninstall"), TRUE, mConfigFilePath);
@@ -279,7 +288,7 @@ void CHookDllApp::loadDll() {
 	}
 }
 
-// ÊÇ·ñÔÚµ±Ç°×Ô¼º¹¤¾ßµÄ¿Õ¼ä
+// æ˜¯å¦åœ¨å½“å‰è‡ªå·±å·¥å…·çš„ç©ºé—´
 bool CHookDllApp::isInMyselfSpace() {
 	return m_strHostDir.CompareNoCase(m_strThisDir) == 0;
 }
