@@ -1,4 +1,4 @@
-// HookTestDlg.cpp : 实现文件
+﻿// HookTestDlg.cpp : 实现文件
 //
 
 #include "stdafx.h"

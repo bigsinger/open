@@ -1,4 +1,4 @@
-// HookDll.h : main header file for the HookDll DLL
+﻿// HookDll.h : main header file for the HookDll DLL
 //
 
 #pragma once
