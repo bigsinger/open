@@ -60,7 +60,7 @@ public:
 public:
 	CStatic m_stcFinder;
 	CString m_szClassName;
-	int m_nHandle = 0;
+	intptr_t m_hwndTarget = 0;
 
 	// 进程名
 	CString m_strProcessName;

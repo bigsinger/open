@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "HookLoader.h"
 #include "HookLoaderDlg.h"
-#include "Tlhelp32.h"
+#include <Tlhelp32.h>
 #include <Shlwapi.h>
 #include <string>
 #include <vector>
@@ -61,7 +61,7 @@ void CHookLoadDlg::DoDataExchange(CDataExchange* pDX) {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_FINDER, m_stcFinder);
 	DDX_Text(pDX, IDC_EDIT_CLASS_NAME, m_szClassName);
-	DDX_Text(pDX, IDC_EDIT_HANDLE, m_nHandle);
+	DDX_Text(pDX, IDC_EDIT_HANDLE, m_hwndTarget);
 	DDX_Text(pDX, IDC_EDIT_PROCESSNAME, m_strProcessName);
 }
 
@@ -312,7 +312,7 @@ void CHookLoadDlg::HiliTheWindow(CPoint point) {
 
 	GetClassName(hWnd, m_szClassName.GetBuffer(128), 128);
 	m_szClassName.ReleaseBuffer();
-	m_nHandle = (int)hWnd;
+	m_hwndTarget = (intptr_t)hWnd;
 	m_strProcessName = getProcessName(dwProcessId);
 
 	UpdateData(FALSE);
@@ -362,13 +362,14 @@ void CHookLoadDlg::Hook() {
 	DWORD dwProcessId = 0;
 
 	UpdateData();
+
 	if (m_strLastProcessName.CompareNoCase(m_strProcessName) != 0) {
 		WritePrivateProfileString("main", "pname", m_strProcessName, m_strConfigFile);
 	}
 
 
-	if (m_nHandle) {
-		GetWindowThreadProcessId((HWND)((PBYTE)NULL + m_nHandle), &dwProcessId);
+	if (m_hwndTarget) {
+		GetWindowThreadProcessId((HWND)((PBYTE)NULL + m_hwndTarget), &dwProcessId);
 	} else {
 		// 通过进程名找
 		dwProcessId = getPIdFromName(m_strProcessName);
@@ -382,7 +383,7 @@ void CHookLoadDlg::Hook() {
 	}
 
 	TRACE("开始HOOK……");
-	m_hook = StartHook((HWND)((PBYTE)NULL + m_nHandle), m_dwThreadId);
+	m_hook = StartHook((HWND)((PBYTE)NULL + m_hwndTarget), m_dwThreadId);
 }
 
 void CHookLoadDlg::UnHook() 	{
