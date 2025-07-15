@@ -61,11 +61,9 @@ LRESULT MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 __declspec(dllexport) HHOOK __stdcall StartHook(HANDLE hMainWnd, DWORD dwThreadId) {
-	// 为了防止重复HOOK，先停止HOOK。特殊情况：之前HOOK成功过，但是宿主进程退出了，这时候需要先停止HOOK再重新HOOK
-	if (hhk == NULL) {
-		hhk = SetWindowsHookEx(WH_MOUSE, (HOOKPROC)MouseProc, AfxGetInstanceHandle(), dwThreadId);
-		TRACE("StartHook hook：%p", hhk);
-	}
+	// 注意：这里不能判断hhk是否为NULL，否则连续注入会失败。
+	hhk = SetWindowsHookEx(WH_MOUSE, (HOOKPROC)MouseProc, AfxGetInstanceHandle(), dwThreadId);
+	TRACE("StartHook hook：%p", hhk);
 	return hhk;
 }
 __declspec(dllexport) void __stdcall StopHook(HHOOK hook) {
@@ -90,16 +88,16 @@ void free3rdDll() {
 
 // 播放成功的声音
 void playSoundSuccess() {
-#if _DEBUG	
 	::Beep(523, 400);	// do
+#if _DEBUG	
 #endif
 }
 
 
 // 播放失败的声音
 void playSoundFailed() {
-#if _DEBUG	
 	::Beep(659, 400);	// mi
+#if _DEBUG	
 #endif
 }
 
