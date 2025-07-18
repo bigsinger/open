@@ -32,9 +32,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HookDll.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="res\HookDll.rc2">
       <Filter>Resource Files</Filter>
     </None>

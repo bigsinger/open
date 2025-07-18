@@ -17,9 +17,9 @@ using namespace std;
 
 
 #ifdef _WIN64
-#define  HookDll_NAME	_T("HookDll_x64.dll")
+#define  HookDll_NAME	_T("Loader_x64.dll")
 #else
-#define  HookDll_NAME	_T("HookDll_Win32.dll")
+#define  HookDll_NAME	_T("Loader_Win32.dll")
 #endif // _WIN64
 
 

@@ -35,24 +35,6 @@ extern Tluaopen_customlib luaopen_star;
 
 
 
-//////////////////////////////////////////////////////////////////////////
-// 三方DLL如果有导出函数需要调用，按照如下方式定义
-typedef int(__stdcall* funcProc)();
-//////////////////////////////////////////////////////////////////////////
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// 释放注入的三方DLL
-void free3rdDll();
-
-// 播放成功的声音
-void playSoundSuccess();
-
-// 播放失败的声音
-void playSoundFailed();
-/////////////////////////////////////////////////////////////////////////////
-
 
 // CHookDllApp
 // See HookDll.cpp for the implementation of this class
@@ -69,11 +51,8 @@ public:
 
 private:
 	void loadLuaStarDll();
-	void loadDll();
 	void showDlg(BOOL isShowDlg);
 
-	// 是否在当前自己工具的空间
-	bool isInMyselfSpace();
 
 public:
 	virtual BOOL InitInstance();
@@ -83,6 +62,3 @@ public:
 };
 
 extern CHookDllApp theApp;
-
-extern std::list<HMODULE>g_3rdDllList;		// 加载的三方DLL列表
-extern std::list<funcProc>g_3rdProcList;	// 加载的三方DLL的导出函数列表

@@ -126,9 +126,6 @@ BOOL CMainDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId)
 LRESULT CMainDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
 	if (wParam == HOTKEY_EVENT_ID_COMMAND) {
 		OutputDebugString("[HookDll]OnHotKey: HOTKEY_EVENT_ID_COMMAND\n");
-		for (auto it = g_3rdProcList.begin(); it != g_3rdProcList.end(); it++) {
-			(*it)();
-		}
 	}
 	return 0;
 }

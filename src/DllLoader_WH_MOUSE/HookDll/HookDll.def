@@ -1,7 +1,0 @@
-; HookDll.def : Declares the module parameters for the DLL.
-
-LIBRARY      "HookDll"
-
-EXPORTS
-    StartHook
-    StopHook
