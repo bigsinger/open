@@ -76,3 +76,11 @@ BOOL CHookTestApp::InitInstance()
 	//  而不是启动应用程序的消息泵。
 	return FALSE;
 }
+
+void TRACEW(const wchar_t* pFormat, ...) {
+	wchar_t buffer[1024] = {};
+	va_list args;
+	va_start(args, pFormat);
+	vswprintf_s(buffer, pFormat, args);
+	OutputDebugStringW(buffer);
+}

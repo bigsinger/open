@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by HookDll.rc
+// Used by LuaGUI.rc
 //
 #define IDD_DIALOG1                     1000
 #define IDD_DIALOG_MAIN                 1000

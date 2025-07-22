@@ -1,4 +1,4 @@
-﻿// HookDll.h : main header file for the HookDll DLL
+﻿// LuaGUI.h : main header file for the LuaGUI DLL
 //
 
 #pragma once
@@ -36,17 +36,17 @@ extern Tluaopen_customlib luaopen_star;
 
 
 
-// CHookDllApp
-// See HookDll.cpp for the implementation of this class
+// CLuaGUIApp
+// See LuaGUI.cpp for the implementation of this class
 //
 
-class CHookDllApp : public CWinApp {
+class CLuaGUIApp : public CWinApp {
 private:
 	CString m_strThisDir;
 	CString m_strHostDir;
 
 public:
-	CHookDllApp();
+	CLuaGUIApp();
 	CMainDlg*m_pdlgMain;
 
 private:
@@ -61,4 +61,4 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CHookDllApp theApp;
+extern CLuaGUIApp theApp;

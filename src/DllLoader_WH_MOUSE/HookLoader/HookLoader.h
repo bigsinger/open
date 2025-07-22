@@ -29,3 +29,5 @@ public:
 };
 
 extern CHookTestApp theApp;
+
+void TRACEW(const wchar_t* pFormat, ...);

@@ -2,8 +2,9 @@
 //
 
 #include "stdafx.h"
-#include "HookDll.h"
+#include "LuaGUI.h"
 #include "MainDlg.h"
+#include "Constant.h"
 
 #ifdef _DEBUG
 #pragma comment(lib,"lua53D.lib")
@@ -51,9 +52,11 @@ END_MESSAGE_MAP()
 
 
 void runScriptText(lua_State* L, const CString&strScriptText) {
-	if (luaL_loadbuffer(L, strScriptText, strScriptText.GetLength(), strScriptText) || lua_pcall(L, 0, 0, 0)) {
+	CStringA strScriptTextA; strScriptTextA = strScriptText;
+	if (luaL_loadbuffer(L, strScriptTextA, strScriptTextA.GetLength(), strScriptTextA) || lua_pcall(L, 0, 0, 0)) {
 		const char*szError = lua_tostring(L, -1);
-		AfxMessageBox(szError);
+		CString strText; strText = szError;
+		AfxMessageBox(strText);
 	}
 
 }
@@ -98,7 +101,7 @@ void CMainDlg::OnOK() {
 }
 
 void CMainDlg::OnCancel() {
-	AfxMessageBox("请退出注入器");
+	AfxMessageBox(L"请退出注入器");
 }
 
 //注册热键
@@ -116,7 +119,7 @@ BOOL CMainDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId)
 	}
 	if (::RegisterHotKey(m_hWnd, nHotId, wModifiers, wVirtualKeyCode) == FALSE) {
 		bSuccess = FALSE;
-		AfxMessageBox("热键冲突，请检查是否有其它程序注册了此热键!");
+		AfxMessageBox(L"热键冲突，请检查是否有其它程序注册了此热键!");
 	}
 
 	return bSuccess;
@@ -125,7 +128,7 @@ BOOL CMainDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId)
 //热键消息响应函数
 LRESULT CMainDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
 	if (wParam == HOTKEY_EVENT_ID_COMMAND) {
-		OutputDebugString("[HookDll]OnHotKey: HOTKEY_EVENT_ID_COMMAND\n");
+		TRACEW(L"[LuaGUI]OnHotKey");
 	}
 	return 0;
 }

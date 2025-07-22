@@ -70,7 +70,7 @@ void free3rdDll() {
     if (g_isAutoFree) {
         for (auto it = g_3rdDllList.begin(); it != g_3rdDllList.end(); it++) {
             BOOL ret = ::FreeLibrary(*it);
-            TRACEW(L"FreeLibrary: %p ret: %d last error: %d", *it, ret, GetLastError());
+            TRACEW(L"FreeLibrary: %p, return: %d, error: %d", *it, ret, GetLastError());
         }
         g_3rdDllList.clear();
         g_3rdProcList.clear();
@@ -129,22 +129,12 @@ void Install() {
 		}
 #endif
 
-		BOOL isLoadLuaStar = FALSE;
-		BOOL isCreateDlg = FALSE;
-		BOOL isShowDlg = FALSE;
-		std::wstring mConfigFilePath = m_strThisDir + _T("hookloader.ini");
+		std::wstring mConfigFilePath = m_strThisDir + _T("loader.ini");
 		if (GetFileAttributes(mConfigFilePath.c_str()) != -1) {
-			isLoadLuaStar = GetPrivateProfileInt(_T("dll"), _T("lua"), FALSE, mConfigFilePath.c_str());
-			isCreateDlg = GetPrivateProfileInt(_T("dll"), _T("dlg"), FALSE, mConfigFilePath.c_str());
-			isShowDlg = GetPrivateProfileInt(_T("dll"), _T("dlgshow"), FALSE, mConfigFilePath.c_str());
-			g_isAutoFree = GetPrivateProfileInt(_T("dll"), _T("autofree"), FALSE, mConfigFilePath.c_str());
+			g_isAutoFree = GetPrivateProfileInt(_T("loader"), _T("autoFree3rd"), FALSE, mConfigFilePath.c_str());
 		}
 
 		loadDll();	// 加载配置的三方DLL
-
-		// TODO 这里后面配置为三方DLL列表里加载
-		//if (isLoadLuaStar) { loadLuaStarDll(); }
-		//if (isCreateDlg) { showDlg(isShowDlg); }
 
 		// 播放成功的声音
 		playSoundSuccess();
@@ -166,7 +156,7 @@ void loadDll() {
 	TCHAR szProcName[MAX_PATH] = { 0 };
 	std::wstring strDllName;
 	std::string strProcName;
-	std::wstring mConfigFilePath = m_strThisDir + _T("hookloader.ini");
+	std::wstring mConfigFilePath = m_strThisDir + _T("loader.ini");
 	// 加载配置的dll
 	std::wstring strSection;
 	std::wstring strKeyName;
@@ -176,7 +166,7 @@ void loadDll() {
 	strKeyName = _T("name32");
 #endif // _WIN64
 
-	int nDllCount = GetPrivateProfileInt(_T("dll"), _T("count"), 0, mConfigFilePath.c_str());
+	int nDllCount = GetPrivateProfileInt(_T("loader"), _T("count"), 0, mConfigFilePath.c_str());
 	for (auto i = 0; i < nDllCount; i++) {
 		_stprintf_s(szBuff, sizeof(szBuff), _T("%d"), i + 1);
 		strSection.assign(szBuff);
@@ -193,12 +183,15 @@ void loadDll() {
 
 		if (!strDllName.empty()) {
 			if (GetFileAttributes(strDllName.c_str()) != -1) {
+				TRACEW(L"loading: %s", strDllName.c_str());
 				HMODULE hModule = ::LoadLibrary(strDllName.c_str());
 				if (hModule) {
 					g_3rdDllList.push_back(hModule);
+					TRACEW(L"load success! Module: %p", hModule);
 
 					// 如果有配置导出函数则调用
 					if (!strProcName.empty()) {
+						TRACEW(L"call: %s", szProcName);
 						funcProc proc = (funcProc)GetProcAddress(hModule, strProcName.c_str());
 						if (proc) {
 							proc();
@@ -207,19 +200,8 @@ void loadDll() {
 							TRACEW(L"not found: %s", szProcName);
 						}
 					}
-
-#pragma region 自动卸载或退出
-					HWND hWndLoader = FindWindow(_T("#32770"), _T("HookLoader"));
-					BOOL isAutoExit = GetPrivateProfileInt(_T("dll"), _T("autoexit"), TRUE, mConfigFilePath.c_str());
-					BOOL isAutoUninstall = GetPrivateProfileInt(_T("dll"), _T("autouninstall"), TRUE, mConfigFilePath.c_str());
-					if (isAutoExit) {
-						::PostMessage(hWndLoader, WM_COMMAND, IDCANCEL, 0);
-					} else if (isAutoUninstall) {
-						::PostMessage(hWndLoader, WM_COMMAND, MAKEWPARAM(IDC_BUTTON_UNHOOK, BN_CLICKED), 0);
-					}
-#pragma endregion
 				} else {
-					TRACEW(L"load failed: %s", strDllName.c_str());
+					TRACEW(L"load failed: %s, error: %d", strDllName.c_str(), GetLastError());
 				}
 			} else {
 				TRACEW(L"not found: %s", strDllName.c_str());
@@ -227,6 +209,19 @@ void loadDll() {
 		}
 
 	}
+
+#pragma region 自动卸载或退出
+	HWND hWndLoader = FindWindow(_T("#32770"), _T("HookLoader"));
+	BOOL isAutoExit = GetPrivateProfileInt(_T("loader"), _T("autoExitTool"), TRUE, mConfigFilePath.c_str());
+	BOOL isAutoUninstall = GetPrivateProfileInt(_T("loader"), _T("autoUnHook"), TRUE, mConfigFilePath.c_str());
+	if (isAutoExit) {
+		TRACEW(L"Auto Exit Hook Tool!");
+		::PostMessage(hWndLoader, WM_COMMAND, IDCANCEL, 0);
+	} else if (isAutoUninstall) {
+		TRACEW(L"Auto Uninstall Hook!");
+		::PostMessage(hWndLoader, WM_COMMAND, MAKEWPARAM(IDC_BUTTON_UNHOOK, BN_CLICKED), 0);
+	}
+#pragma endregion
 }
 
 // 是否在当前自己工具的空间

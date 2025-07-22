@@ -17,9 +17,9 @@ using namespace std;
 
 
 #ifdef _WIN64
-#define  HookDll_NAME	_T("Loader_x64.dll")
+#define  LuaGUI_NAME	_T("Loader_x64.dll")
 #else
-#define  HookDll_NAME	_T("Loader_Win32.dll")
+#define  LuaGUI_NAME	_T("Loader_Win32.dll")
 #endif // _WIN64
 
 
@@ -40,9 +40,9 @@ CHookLoadDlg::CHookLoadDlg(CWnd* pParent /*=NULL*/)
 	GetModuleFileName(NULL, szBuff, sizeof(szBuff));
 	StrRChr(szBuff, NULL, '\\')[1] = 0;
 	m_strStartPath = szBuff;
-	m_strConfigFile = m_strStartPath + _T("config.ini");
+	m_strConfigFile = m_strStartPath + _T("HookLoader.ini");
 
-	HMODULE hModule = LoadLibrary(m_strStartPath + HookDll_NAME);
+	HMODULE hModule = LoadLibrary(m_strStartPath + LuaGUI_NAME);
 	if (hModule) {
 		StartHook = (TStartHook)GetProcAddress(hModule, "StartHook");
 		StopHook = (TStopHook)GetProcAddress(hModule, "StopHook");
@@ -346,6 +346,7 @@ void CHookLoadDlg::OnBnClickedButtonHook() {
 }
 
 void CHookLoadDlg::OnBnClickedButtonUnhook() {
+	TRACEW(L"OnUnhook - 用户点击或收到自动卸载的消息");
 	UnHook();
 }
 
@@ -354,6 +355,7 @@ void CHookLoadDlg::OnOK() {
 	__super::OnOK();
 }
 void CHookLoadDlg::OnCancel() {
+	TRACEW(L"OnCancel - 用户点击或收到自动退出的消息");
 	if (StopHook) { StopHook(m_hook); }
 	__super::OnCancel();
 }
