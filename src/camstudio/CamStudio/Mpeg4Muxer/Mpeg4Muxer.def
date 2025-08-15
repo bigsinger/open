@@ -1,9 +1,0 @@
-
-LIBRARY         "Mpeg4Muxer.dll"
-
-EXPORTS
-            DllMain                 PRIVATE
-            DllGetClassObject       PRIVATE
-            DllCanUnloadNow         PRIVATE
-            DllRegisterServer       PRIVATE
-            DllUnregisterServer     PRIVATE
